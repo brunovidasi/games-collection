@@ -450,13 +450,21 @@
     host.classList.toggle('showcaseview', state.view === 'showcase');
     cancelAnimationFrame(SC.raf);
     SC.raf = 0;
-    if (state.view === 'checklist') { CFG.checklist($('#checklist'), ALL); Detail.rehome(); return; }
+    if (state.view === 'checklist') { CFG.checklist($('#checklist'), ALL); Detail.rehome(); fetchFaces($('#checklist')); return; }
     if (!games.length) {
       host.innerHTML = `<div class="empty-msg"><b>Nothing on this shelf</b>No games match those filters. Try another console or clear the search.</div>`;
       return;
     }
     if (state.view === 'list') renderList(animate); else if (state.view === 'grid') renderGrid(animate); else if (state.view === 'rows') renderRows(animate); else if (state.view === 'showcase') renderShowcase(animate); else renderShelf(animate);
     Detail.rehome();
+    fetchFaces(host);
+  }
+
+  // every cover facing out in the view just drawn (a case's front, a loose cartridge's label) is fetched now,
+  // not only as it nears the screen, so none stands blank while it scrolls in. A frame and a tick later, so
+  // the ones on screen are asked for first
+  function fetchFaces(root) {
+    requestAnimationFrame(() => setTimeout(() => $$('.cv img, .cf img', root).forEach(im => { im.loading = 'eager'; })));
   }
 
   /* ---------- the bookcase ---------- */
