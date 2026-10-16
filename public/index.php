@@ -115,7 +115,7 @@ header('Content-Type: text/html; charset=utf-8');
 
 <script>window.SITE = <?= json_encode($config, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?>;</script>
 <script>
-// on a phone the pages and the add-me buttons fold into a menu behind the burger at the left of the top bar
+// on a phone the pages and the add-me buttons fold into a menu behind the burger at the right of the top bar
 (() => {
   const bar = document.querySelector('.topbar'), toggle = bar.querySelector('.menu-toggle');
   const setMenu = on => {
@@ -129,13 +129,14 @@ header('Content-Type: text/html; charset=utf-8');
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && bar.classList.contains('menu-open')) { setMenu(false); toggle.focus(); } });
   matchMedia('(max-width: 820px)').addEventListener('change', () => setMenu(false));
 })();
-// an "Add me" with no link (the EA app) copies the ID to search for, and says so for a moment
+// an "Add me" with no link (the EA app) copies the ID to search for, and says so for a moment: on its own label,
+// or in the phone menu's row of tiles (too narrow for it) over them, in place of "Add me on"
 document.querySelectorAll('.addme [data-copy]').forEach(b => b.addEventListener('click', async () => {
-  const lbl = b.querySelector('.lbl'), was = lbl.textContent;
+  const lbl = b.closest('.addme-strip')?.querySelector(':scope > span') || b.querySelector('.lbl'), was = lbl.textContent;
   try { await navigator.clipboard.writeText(b.dataset.copy); lbl.textContent = 'Copied: ' + b.dataset.copy; }
   catch (e) { lbl.textContent = 'EA ID: ' + b.dataset.copy; }
-  b.classList.add('copied');
-  setTimeout(() => { lbl.textContent = was; b.classList.remove('copied'); }, 2500);
+  b.classList.add('copied'); lbl.classList.add('copied');
+  setTimeout(() => { lbl.textContent = was; b.classList.remove('copied'); lbl.classList.remove('copied'); }, 2500);
 }));
 </script>
 <script src="<?= e(asset_url('js/consoles.js')) ?>"></script>

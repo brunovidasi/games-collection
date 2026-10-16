@@ -130,7 +130,8 @@ html.gta {
 .gta .spot-close, .gta .spot-nav, .gta .views { border-radius: 0; background: rgba(10,6,16,.85); border-color: rgba(255,79,154,.4); }
 .gta .spot-nav button, .gta .views button { border-radius: 0; }
 .gta .views button { font-weight: 800; text-transform: uppercase; letter-spacing: .05em; font-size: 11px; }
-.gta .spot-close:hover, .gta .views button.on, .gta .spot-nav button:hover:not(:disabled) { background: #fff; color: var(--ink); }
+.gta .spot-close:hover, .gta .views button.on { background: #fff; color: var(--ink); }
+@media (hover: hover) { .gta .spot-nav button:hover:not(:disabled) { background: #fff; color: var(--ink); } }
 .gta .views button.open-btn { background: var(--sunset); color: var(--ink); }
 .gta .spot-eyebrow { color: var(--peach); font-weight: 700; }
 .gta .stamp { border-radius: 0; border-color: var(--teal); color: var(--teal); background: rgba(10,6,16,.85); }
@@ -157,8 +158,6 @@ html.gta {
 @media (max-width: 820px) {
   .gta body::before { height: 45vh; opacity: .7; }
   .gta .brand { font-size: min(27px, 9.2cqi); line-height: 1.1; }
-  .gta .figures { line-height: 1.2; }
-  .gta .figures b { font-size: 12px; }
   .gta .topmenu { background: rgb(10,6,16); }
   .gta .topnav a { font-size: 14px; }
 }
