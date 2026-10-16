@@ -112,9 +112,9 @@ Sign-in failures back off per IP address (five tries, then a doubling wait), and
 
 The platforms' keys and sign-ins are kept in the database encrypted (libsodium) with the config's `app_key`, so the database alone gives none of them away; the admin never shows one again once saved. Keep the same `app_key` when moving the database, or they have to be entered again.
 
-## Deploying (later)
+## Deploying
 
-The plan is the record site's: this repo becomes the `games/` folder of the `brunovidasi.com` repo (as `music/` is), deployed by its FTP Action to `public_html/games`, i.e. `brunovida.si/games`. Only `public/` is web-reachable: `.htaccess` maps every request into it, and `config/`, `includes/`, `cron/`, `sql/`, `seed/` and `data/` each carry a deny-all `.htaccess` as well.
+This repo deploys itself: every push to `main` runs its FTP Action (`.github/workflows/deploy.yml`) to `public_html/games`, i.e. `brunovida.si/games`, uploading only what changed. The `brunovidasi.com` repo leaves `games/` out of its own deploy (`games/**` in its `exclude`), so neither deploy uploads or deletes the other's files. The Action needs the `FTP_SERVER`, `FTP_USERNAME` and `FTP_PASSWORD` secrets; an FTP account whose root is the games folder itself also needs the `FTP_SERVER_DIR` variable, set to `./`. It only ever deletes files it uploaded, so the covers and anything else put there by hand stay. Only `public/` is web-reachable: `.htaccess` maps every request into it, and `config/`, `includes/`, `cron/`, `sql/`, `seed/` and `data/` each carry a deny-all `.htaccess` as well.
 
 **Do not put `config/config.php` on the server.** Create, *above* `public_html`:
 
