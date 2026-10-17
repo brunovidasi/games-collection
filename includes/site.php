@@ -132,6 +132,7 @@ function site_script_config(): array
         'base'        => url(''),
         'admin'       => $admin, // the owner's own links: "Look for it" on what's still to find, a game's marks in its drawer
         'csrf'        => $admin ? csrf_token() : null,
+        'barcodes'    => $admin ? (object) array_column(all_games(), 'barcode', 'id') : null, // id => number, for the drawer's Barcode button (the API leaves them out)
     ];
 }
 

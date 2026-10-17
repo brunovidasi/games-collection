@@ -147,5 +147,6 @@ document.querySelectorAll('.addme [data-copy]').forEach(b => b.addEventListener(
 <script src="<?= e(asset_url('js/gta.js')) ?>"></script>
 <script src="<?= e(asset_url('js/dropdown.js')) ?>"></script>
 <script src="<?= e(asset_url('js/app.js')) ?>"></script>
+<?php if ($config['admin']): ?><script src="<?= e(asset_url('js/barcode.js')) ?>"></script><?php endif; ?>
 </body>
 </html>

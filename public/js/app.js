@@ -1205,6 +1205,8 @@
       if (go) jump(byId.get(go.dataset.go));
       const fl = e.target.closest('[data-flag]');
       if (fl && cur) flag(cur.g, fl.dataset.flag, fl);
+      const bc = e.target.closest('[data-barcode]');
+      if (bc && cur) barcode(cur.g, bc);
       if (more) { more.previousElementSibling.classList.toggle('all'); more.textContent = more.previousElementSibling.classList.contains('all') ? 'Show less' : 'Read more'; }
     });
 
@@ -1498,34 +1500,58 @@
       return g.bundle ? section('Came in', list([g.bundle])) : '';
     }
 
-    // signed in, the copy's Favourite and Faces out marks, changed where it stands (admin/flags), and a link to edit it
+    /* signed in, the copy's Favourite and Faces out marks, changed where it stands (admin/flags), its barcode, read
+       off the box with the camera (admin/barcode, js/barcode.js; not for a digital copy), and a link to edit it */
     function ownerHtml(g) {
       if (!SITE.admin) return '';
       const face = g.faceOut === true ? 'Faces out' : g.faceOut === false ? 'On its side' : 'Faces out: auto';
+      const code = SITE.barcodes?.[g.id];
       return `<div class="dw-owner">
         <button type="button" data-flag="fav" aria-pressed="${!!g.fav}">★ Favourite</button>
         <button type="button" data-flag="faceOut" aria-pressed="${g.faceOut === true}"${g.faceOut === false ? ' class="side"' : ''}>${face}</button>
+        ${g.format !== 'digital' && window.Barcode ? `<button type="button" data-barcode aria-pressed="${!!code}" title="${code ? 'Scan it again' : 'Scan the barcode on the box'}">${code ? esc(code) : 'Add barcode'}</button>` : ''}
         <a href="${esc(BASE + 'admin/game?id=' + encodeURIComponent(g.id))}" target="_blank" rel="noopener">Edit ↗</a></div>`;
+    }
+    async function ownerPost(path, fields) {
+      const form = new FormData();
+      Object.entries(fields).forEach(([k, v]) => form.append(k, v));
+      form.append('csrf_token', SITE.csrf);
+      const r = await fetch(BASE + path, { method: 'POST', body: form, credentials: 'same-origin', headers: { Accept: 'application/json' } });
+      const json = await r.json().catch(() => null);
+      if (!r.ok || !json) throw new Error(json?.error || `The server answered ${r.status} without saying why.`);
+      return json;
+    }
+    // the drawer as it is now, where it was scrolled to
+    function refill(g) {
+      if (body._g === g) { body._g = null; const top = body.scrollTop; fill(g); body.scrollTop = top; }
     }
     async function flag(g, field, button) {
       button.disabled = true;
       try {
-        const form = new FormData();
-        form.append('toggle', `${field}:${g.id}`);
-        form.append('csrf_token', SITE.csrf);
-        const r = await fetch(BASE + 'admin/flags', { method: 'POST', body: form, credentials: 'same-origin', headers: { Accept: 'application/json' } });
-        const json = await r.json().catch(() => null);
-        if (!r.ok || !json) throw new Error(json?.error || `The server answered ${r.status} without saying why.`);
-        const now = json.games[g.id];
+        const now = (await ownerPost('admin/flags', { toggle: `${field}:${g.id}` })).games[g.id];
         g.fav = now.fav || undefined;
         g.faceOut = now.faceOut ?? undefined;
       } catch (err) {
         alert(err.message);
       }
-      // the drawer and the shelf behind it, as they are now (a game facing out stands differently)
-      if (body._g === g) { body._g = null; const top = body.scrollTop; fill(g); body.scrollTop = top; }
+      // and the shelf behind it (a game facing out stands differently)
+      refill(g);
       games = list();
       render(false);
+    }
+    async function barcode(g, button) {
+      const was = SITE.barcodes?.[g.id] || null;
+      const code = await Barcode.scan({ title: [g.title, CONSOLE_BY_ID[g.console]?.name].filter(Boolean).join(' · '), current: was });
+      if (code === null || code === was) return;
+      button.disabled = true;
+      try {
+        const json = await ownerPost('admin/barcode', { id: g.id, barcode: code });
+        (SITE.barcodes ||= {})[g.id] = json.barcode;
+        if (json.also.length) alert(`Saved. ${json.also.map(x => `${x.title} (${x.console})`).join(', ')} ${json.also.length > 1 ? 'have' : 'has'} the same barcode: is one of them the wrong game?`);
+      } catch (err) {
+        alert(err.message);
+      }
+      refill(g);
     }
 
     function details(g) {

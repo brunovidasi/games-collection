@@ -65,7 +65,7 @@ html.gta {
 .gta .figures b { font: 400 15px var(--gta-display); letter-spacing: .03em; background: var(--sunset); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .gta :is(.ghead b, .shead h2, .tr-head h3, .empty-msg b, .spot-info h2) { font-family: var(--gta-display); font-weight: 400; text-transform: uppercase; letter-spacing: .01em; }
 .gta :is(.cap b, .ltitle, #tip b, .meter .nums b, .want b) { font-family: var(--gta-ui); font-weight: 800; }
-.gta .spot-info h2 { font-size: clamp(2.2rem, 4.8vw, 4.4rem); line-height: .95; }
+.gta .spot-info h2 { font-size: clamp(1.6rem, 3.2vw, 3rem); line-height: .95; }
 .gta .dw-note { font: 400 1.4rem/1.2 var(--gta-script); color: var(--peach); border-left-color: var(--orange); }
 .gta :is(.search input, select.sort, .seg button, .pills button, .packs h3, .tag, .ghostbox b, .ghostbox i, .kc, .plate) { font-family: var(--gta-ui); }
 

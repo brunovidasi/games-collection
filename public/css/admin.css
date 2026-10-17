@@ -127,7 +127,8 @@ input[type="checkbox"], input[type="radio"] { width: auto; accent-color: var(--a
 .fields .field.wide { grid-column: 1 / -1; }
 .check { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer; }
 .radio { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); cursor: pointer; }
-.color-pair { display: flex; gap: 6px; align-items: center; }
+.color-pair, .scan-pair { display: flex; gap: 6px; align-items: center; }
+.scan-pair input { flex: 1; min-width: 0; }
 .heading-pair { display: flex; gap: 6px; }
 form.inline { display: inline-flex; gap: 6px; align-items: center; flex-wrap: wrap; margin: 0; }
 .save-bar { position: sticky; bottom: 0; z-index: 20; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; padding: 14px 16px; margin: 6px -16px 0;

@@ -157,6 +157,11 @@ function field_input(string $key, mixed $value, ?array $state = null): string
             . e($value === null ? '' : json_encode($value, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)) . '</textarea>',
         default => '<input type="text"' . $attrs . ' value="' . e($value) . '">',
     };
+    if ($key === 'barcode') {
+        // read off the box with the camera (js/barcode.js)
+        $input = '<span class="scan-pair">' . str_replace('<input type="text"', '<input type="text" inputmode="numeric" autocomplete="off"', $input)
+            . '<button type="button" data-scan="' . e($id) . '">Scan</button></span>';
+    }
 
     return '<div class="field' . ($type === 'json' || $type === 'textarea' ? ' wide' : '') . '">'
         . '<label for="' . e($id) . '">' . e($f['label']) . '</label>'
@@ -232,6 +237,10 @@ function field_from_post(string $key, mixed $raw, ?string $shape = null): array
         return [null, !empty($f['required']) ? "{$f['label']} is needed." : null];
     }
 
+    if ($key === 'barcode') {
+        return clean_barcode($raw);
+    }
+
     switch ($f['type']) {
         case 'bool':
             return [$raw === '1', null];
@@ -260,6 +269,26 @@ function field_from_post(string $key, mixed $raw, ?string $shape = null): array
         default:
             return [$raw, null];
     }
+}
+
+/**
+ * A barcode's number as the box prints it under the stripes, without spaces or dashes, and an error unless
+ * it is an EAN-8, UPC-A, EAN-13 or GTIN-14 whose last digit checks out (js/barcode.js checks it the same way).
+ *
+ * @return array{0: string, 1: ?string} [number, error]
+ */
+function clean_barcode(string $raw): array
+{
+    $code = preg_replace('/[\s-]+/', '', $raw);
+    if (!preg_match('/^(\d{8}|\d{12,14})$/', $code)) {
+        return [$code, 'Barcode: the number under it has 8, 12 or 13 digits.'];
+    }
+    $sum = 0;
+    foreach (str_split(strrev(substr($code, 0, -1))) as $i => $digit) {
+        $sum += (int) $digit * ($i % 2 ? 1 : 3);
+    }
+
+    return [$code, (10 - $sum % 10) % 10 === (int) substr($code, -1) ? null : "Barcode: $code doesn't check out, so a digit is mistyped."];
 }
 
 /** Minutes for an hours box ("26.2" hours), and back. */

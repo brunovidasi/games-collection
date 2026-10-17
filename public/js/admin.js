@@ -1,6 +1,6 @@
 /* admin.js — what the admin's pages do in the browser: the menu on a phone, the filters that apply as
    they change, the confirmations, the colour pickers, the synced fields that stop syncing once changed,
-   Find cover, the dashboard's Sync buttons, and the tables' sorting and column picker. Every page works without it, but slower. */
+   Find cover, the barcode's Scan, the dashboard's Sync buttons, and the tables' sorting and column picker. Every page works without it, but slower. */
 
 (function () {
   const $ = (s, el = document) => el.querySelector(s);
@@ -63,6 +63,17 @@
     input.select();
     try { await navigator.clipboard.writeText(input.value); b.textContent = 'Copied'; } catch (e) { document.execCommand('copy'); }
     setTimeout(() => { b.textContent = 'Copy'; }, 1600);
+  }));
+
+  /* ---------- Scan, beside the Barcode field: the camera fills it in, and Save keeps it ---------- */
+  $$('[data-scan]').forEach(b => b.addEventListener('click', async () => {
+    const input = document.getElementById(b.dataset.scan);
+    if (!window.Barcode) return input.focus();
+    const code = await Barcode.scan({ title: $('.page-head h1')?.textContent, current: input.value.trim() || null });
+    if (code === null) return;
+    input.value = code;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.focus();
   }));
 
   /* ---------- the "Send to my shelf" bookmark's sign-in, brought here in the address's #fragment ---------- */

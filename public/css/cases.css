@@ -272,6 +272,10 @@
    isn't centred on its EXPANSION PACK), so the names start level all along the shelf */
 .ps-ea-pcgame .slogo { height: calc(var(--d) * 1.12); max-height: none; object-fit: contain; object-position: top; }
 .ps-ea-pcgame .ssub { align-items: flex-start; text-align: start; }
+/* the pack's name in the ink that reads on the band (dark on Family Fun's yellow), its halo the opposite of the ink */
+.ps-ea-pcgame:not(.solid) .ssub b, .ps-ea-pcgame:not(.solid) .ssub small { color: var(--sf, #fff); }
+.ps-ea-pcgame:not(.solid) .ssub b { text-shadow: 0 0 .25em rgb(from var(--sf, #fff) calc(255 - r) calc(255 - g) calc(255 - b) / .55), .05em .05em 0 rgb(from var(--sf, #fff) calc(255 - r) calc(255 - g) calc(255 - b) / .4); }
+.ps-ea-pcgame:not(.solid) .ssub small { text-shadow: 0 0 .3em rgb(from var(--sf, #fff) calc(255 - r) calc(255 - g) calc(255 - b) / .7); }
 .ps-ea-pcgame .stext { font-size: .72em; }
 /* a title printed over the cover's colour takes the ink that reads on it (a solid band has its own) */
 .ps-ea-pcgame:not(.solid) .stext { color: var(--sf, #fff); }
