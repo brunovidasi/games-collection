@@ -157,6 +157,7 @@
   const SPINE_TOP = {
     pcgame: '<span class="pt-pcgame"><b>P<i>C</i></b><small>GAME</small></span>',
     pccd: '<span class="pt-pccd"><b>PC</b><b>CD</b></span>',
+    'pccd-rule': '<span class="pt-pccd"><b>PC</b><b>CD</b></span>',
     'pccd-tile': '<span class="pt-tile"><b>PC</b>CD</span>',
     pcdvd: '<span class="pt-dvd"><b>PC</b><b class="dvd">DVD</b><small>ROM</small></span>',
     'pcdvd-mac': '<span class="pt-box"><span class="pt-dvd"><b>PC</b><b class="dvd">DVD</b><small>ROM</small></span><em>Mac</em></span>',
@@ -193,7 +194,8 @@
     if (k === 'bbfc15') return '<i class="sbg pegi bbfc15"><b>15</b></i>';
     // PC DVD in a grey block at the very foot (the Games for Windows years), on one line or two
     if (k === 'pcdvd' || k === 'pcdvd2') return `<i class="sbg txt pcdvd">PC${k === 'pcdvd2' ? '<br>' : ' '}<b>DVD</b></i>`;
-    if (k === 'rockstar') return `<i class="sbg rockstar"><img src="${window.SITE?.base || ''}logos/rockstar.webp" alt="" loading="lazy" decoding="async" draggable="false"></i>`;
+    // its logo on the yellow tile, or on a cream one (Vice City's Australian card box)
+    if (k === 'rockstar' || k === 'rockstar-cream') return `<i class="sbg rockstar"><img src="${window.SITE?.base || ''}logos/${k}.webp" alt="" loading="lazy" decoding="async" draggable="false"></i>`;
     // small print across the spine (\n breaks it), or with txtv: turned to read down it (a catalogue number)
     if (/^txtv?:/.test(k)) return `<i class="sbg txt${k[3] === 'v' ? ' down' : ''}">${esc(k.slice(k.indexOf(':') + 1)).replace(/\n/g, '<br>')}</i>`;
     if (/^\d+$/.test(k)) return `<i class="sbg pegi"><b>${k}</b></i>`;
@@ -210,7 +212,7 @@
     const text = P.title || g.title;
     const fit = Math.min(1, 22 / text.replace(/\*[^*]*\*/g, m => ' '.repeat(Math.ceil(m.length * .6))).replace(/\n.*/, '').length);
     const words = esc(text).replace(/\*([^*]+)\*/g, '<small>$1</small>').replace(/\n/g, '<br>').replace(/[™®]/g, '<sup>$&</sup>');
-    const logo = P.logo ? `<img class="slogo${P.wide ? ' wide' : ''}" src="${esc(P.logo)}" alt="" loading="lazy" decoding="async" draggable="false">` : '';
+    const logo = P.logo ? `<img class="slogo${P.wide ? ' wide' : ''}${P.tall ? ' tall' : ''}" src="${esc(P.logo)}" alt="" loading="lazy" decoding="async" draggable="false">` : '';
     // the pack's name after the logo; subStyle prints it another way (gold for the Episodes, a plaque for Bully)
     const sub = P.sub ? `<span class="ssub${P.sub.length > 14 && !P.subStyle ? ' long' : ''}${P.subStyle ? ' ss-' + P.subStyle : ''}"><b>${esc(P.sub)}</b>${P.small ? `<small>${esc(P.small)}</small>` : ''}</span>` : '';
     const ttl = logo || P.sub ? `${logo}${sub}` : `<span class="stext${P.caps ? ' caps' : ''}${P.font ? ' f-' + P.font : ''}" style="--fit:${fit.toFixed(2)}">${words}</span>`;

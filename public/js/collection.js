@@ -8,6 +8,11 @@
   const $ = (s, el = document) => el.querySelector(s);
   const byRelease = (a, b) => (a.shelfDate || a.released || '9999').localeCompare(b.shelfDate || b.released || '9999') || a.title.localeCompare(b.title);
 
+  /** A copy's case where it isn't its console's usual one: EA's thick PC case of the early 2000s (bigCase), a big box. */
+  const caseName = g => g.bigCase ? 'Big case' : g.big ? 'Big box' : '';
+  /** The same, naming a PC disc's usual DVD-sized case too: what tells a big-case copy from its namesake in a normal one. */
+  const caseKind = g => caseName(g) || (g.console === 'pc' && g.format === 'boxed' && !g.box ? 'DVD case' : '');
+
   // a DVD case stands the height of the stage, and the rest keep their real size beside it
   const stageH = () => innerWidth < 640 ? 130 : 168;
 
@@ -51,7 +56,7 @@
       tags.push(`<span class="tag dl"${L ? ` style="--lb:${L.bg};--lf:${L.fg}"` : ''}>${esc(L && g.launcher !== 'none' ? L.name : 'Digital')}</span>`);
     }
     if (g.mac) tags.push('<span class="tag mac">Mac</span>');
-    a.insertAdjacentHTML('beforeend', `<span class="cap"><b title="${esc(g.title)}">${esc(name)}</b><small>${Case.year(g)}${g.edition ? ' · ' + esc(g.edition) : ''}${g.bundle ? ' · in ' + esc(g.bundle.title) : ''}</small><span class="tags">${tags.join('')}</span></span>`);
+    a.insertAdjacentHTML('beforeend', `<span class="cap"><b title="${esc(g.title)}">${esc(name)}</b><small>${Case.year(g)}${g.edition ? ' · ' + esc(g.edition) : ''}${caseName(g) ? ' · ' + caseName(g) : ''}${g.bundle ? ' · in ' + esc(g.bundle.title) : ''}</small><span class="tags">${tags.join('')}</span></span>`);
     return a;
   }
 
@@ -95,7 +100,17 @@
   function packList(g, gs, name, wants = []) {
     const kind = x => x.pack || 'Base game';
     const kinds = [...PACKS, ...new Set(gs.map(kind).filter(k => !PACKS.includes(k)))];
-    const code = x => x.packCode ? `<small>${esc(x.packCode)}</small>` : '';
+    // two copies of one pack (one in a big case, one in a DVD case) are told apart by their case, or else their region
+    const twins = x => gs.filter(y => name(y) === name(x));
+    const apart = x => {
+      const ts = twins(x);
+      if (ts.length < 2) return '';
+      return new Set(ts.map(caseKind)).size > 1 ? caseKind(x) : x.region;
+    };
+    const code = x => {
+      const t = [x.packCode, apart(x)].filter(Boolean).join(' · ');
+      return t ? `<small>${esc(t)}</small>` : '';
+    };
     const item = x => `<li${x === g ? ' class="on" aria-current="true"' : ''}><button type="button" data-go="${esc(x.id)}">${esc(name(x))}</button>${code(x)}</li>`;
     const list = (title, lis, cls = '') => `<div${cls ? ` class="${cls}"` : ''}><p class="dw-sub">${esc(title)} <em>${lis.length}</em></p><ul>${lis.join('')}</ul></div>`;
     return `<div class="dw-packs">${kinds.map(k => [k, gs.filter(x => kind(x) === k).sort(byRelease)]).filter(([, xs]) => xs.length)
@@ -104,5 +119,5 @@
       + '</div>';
   }
 
-  window.Collection = { card, group, meter, wantCard, packList, stageH, byRelease, esc, $, href };
+  window.Collection = { card, group, meter, wantCard, packList, stageH, byRelease, caseName, caseKind, esc, $, href };
 })();

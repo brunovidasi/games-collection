@@ -28,7 +28,7 @@ $words = array_filter(explode(' ', norm_name($f['q'])));
 $games = array_filter($all, function ($g) use ($f, $words) {
     if ($words) {
         $hay = norm_name(implode(' ', array_filter([$g['id'], $g['title'], $g['listedAs'] ?? null, $g['edition'] ?? null, $g['publisher'] ?? null,
-            $g['developer'] ?? null, $g['genre'] ?? null, $g['series'] ?? null, $g['released'] ?? null, $g['note'] ?? null, console_name($g['console'])])));
+            $g['developer'] ?? null, $g['genre'] ?? null, $g['series'] ?? null, $g['released'] ?? null, $g['note'] ?? null, $g['barcode'] ?? null, console_name($g['console'])])));
         foreach ($words as $w) {
             if (!str_contains($hay, $w)) {
                 return false;
@@ -99,7 +99,7 @@ admin_header('Collection', count($all) . ' copies in the database. Pick one to c
 <form class="filters card" method="get" action="<?= e(url('admin/games')) ?>" data-autosubmit>
   <div class="search">
     <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M13 13l4.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-    <input type="search" name="q" value="<?= e($f['q']) ?>" placeholder="Search title, id, publisher, year…" aria-label="Search">
+    <input type="search" name="q" value="<?= e($f['q']) ?>" placeholder="Search title, id, publisher, year, barcode…" aria-label="Search">
   </div>
   <select name="console" aria-label="Console">
     <option value="">Every console</option>

@@ -30,7 +30,7 @@ const LIBRETRO = [
 ];
 
 // what each region code plays on (as in js/consoles.js)
-const REGION_STD = ['AUS' => 'PAL', 'EUR' => 'PAL', 'HOL' => 'PAL', 'PAL' => 'PAL', 'UK' => 'PAL', 'USA' => 'NTSC-U', 'NTSC-U' => 'NTSC-U', 'JPN' => 'NTSC-J', 'NTSC-J' => 'NTSC-J'];
+const REGION_STD = ['AUS' => 'PAL', 'EUR' => 'PAL', 'HOL' => 'PAL', 'PAL' => 'PAL', 'UK' => 'PAL', 'ASIA' => 'PAL', 'USA' => 'NTSC-U', 'NTSC-U' => 'NTSC-U', 'JPN' => 'NTSC-J', 'NTSC-J' => 'NTSC-J'];
 
 const TGDB_PLATFORM = ['ps4' => 4919, 'ps5' => 4980, 'xone' => 4920, 'x360' => 15, 'switch' => 4971, 'switch2' => 5021, 'pc' => 1];
 

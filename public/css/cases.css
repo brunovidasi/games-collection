@@ -262,12 +262,19 @@
 /* EA's thick PC cases: black ends, the cover's colour down the middle */
 .sp.ps-ea-pcgame { --band: #121212; color: #fff; }
 .ps-ea-pcgame .ptop { height: 11%; background: linear-gradient(#0b0b0b, #1b1b1b); }
-.ps-ea-pcgame .pfoot { height: 15%; padding: 0; background: linear-gradient(#1b1b1b, #0b0b0b); }
+.ps-ea-pcgame .pfoot { height: auto; min-height: 15%; padding: calc(var(--d) * .14) 0; background: linear-gradient(#1b1b1b, #0b0b0b); }
 .ps-ea-pcgame .pmid { background: var(--sb); box-shadow: inset 0 1px 0 rgba(0,0,0,.6), inset 0 -1px 0 rgba(0,0,0,.6); }
 .ps-ea-pcgame.solid .pmid { background: var(--band); }
 .ps-ea-pcgame.solid .pfoot { background: var(--band); color: var(--bandf); }
-.ps-ea-pcgame .slogo { width: var(--d); filter: none; flex-shrink: 0; }
+/* the logo kept a little in from the spine's edges, so none of it is cut off */
+.ps-ea-pcgame .slogo { width: calc(var(--d) * .84); filter: none; flex-shrink: 0; }
+/* every logo in a slot of one height, at its top, and the pack's name from the top of its line (a short one, Pets,
+   isn't centred on its EXPANSION PACK), so the names start level all along the shelf */
+.ps-ea-pcgame .slogo { height: calc(var(--d) * 1.12); max-height: none; object-fit: contain; object-position: top; }
+.ps-ea-pcgame .ssub { align-items: flex-start; text-align: start; }
 .ps-ea-pcgame .stext { font-size: .72em; }
+/* a title printed over the cover's colour takes the ink that reads on it (a solid band has its own) */
+.ps-ea-pcgame:not(.solid) .stext { color: var(--sf, #fff); }
 
 /* SimCity (2013): the title in white over the white spine, in the logo's red shadow */
 .sp.ps-art { color: #fff; }
@@ -286,6 +293,13 @@
 /* PC CD: white on a black strip, PC over CD */
 .top-pccd .ptop { background: #141414; }
 .pt-pccd { display: flex; flex-direction: column; align-items: center; color: #fff; font: 900 .56em/1.02 'Arial Black', 'Exo 2', sans-serif; letter-spacing: .02em; }
+/* the same, big, over a thin white rule, the Windows versions under it (Vice City's Australian card box) */
+.top-pccd-rule .ptop { height: auto; padding: calc(var(--d) * .07) 0 calc(var(--d) * .06); background: #141414; border-bottom: max(1px, calc(var(--d) * .012)) solid #e6e6e6; }
+.top-pccd-rule .pt-pccd { font-size: calc(var(--d) * .31); line-height: .8; }
+.top-pccd-rule .phead { padding-top: calc(var(--d) * .16); }
+.top-pccd-rule .phead .sbg.txt { font-size: calc(var(--d) * .115); font-weight: 400; }
+.top-pccd-rule .pfoot { padding-bottom: calc(var(--d) * .1); }
+.top-pccd-rule .sbg.rockstar { width: calc(var(--d) * .64); }
 /* PC DVD-ROM: grey on the white, PC over the DVD logo over ROM */
 .pt-dvd { display: flex; flex-direction: column; align-items: center; color: #6f6f6f; line-height: 1; }
 .pt-dvd b { font: 900 .5em/1 'Arial Black', 'Exo 2', sans-serif; }
@@ -377,6 +391,9 @@
 /* a wordmark right down the spine (logos/gta-*.webp, Bully), set in the middle with the pack's name after it */
 .slogo.wide { width: calc(var(--d) * .6); max-height: 70%; filter: none; }
 .pttl:has(.wide) { justify-content: center; padding-bottom: 12%; }
+/* or big, filling most of the spine from near its top (Vice City's Australian card box) */
+.slogo.tall { width: calc(var(--d) * .65); max-height: 100%; filter: none; }
+.pttl:has(.tall) { padding-top: calc(var(--d) * .55); }
 /* Episodes from Liberty City in gold under Episodes From */
 .ssub.ss-gold { flex-direction: column-reverse; align-items: flex-start; }
 .ssub.ss-gold b, .ssub.ss-gold small { color: transparent; background: linear-gradient(90deg, #e9d79a, #b99a52 55%, #8c7236); -webkit-background-clip: text; background-clip: text; text-shadow: none; }

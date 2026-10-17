@@ -374,7 +374,7 @@
     if (item) warm(byId.get(item.dataset.id));
     if (!item || e.pointerType === 'touch' || !host.contains(item) || state.view !== 'shelf') return;
     const g = byId.get(item.dataset.id);
-    tipEl.innerHTML = `<b>${esc(g.title)}</b><span>${CONSOLE_BY_ID[g.console].short}${g.platinum ? ' Platinum' : ''} · ${Case.year(g)} · ${esc(REGIONS[g.region]?.name || g.region)}${g.format !== 'boxed' ? ' · ' + FORMATS[g.format] : ''}</span>`;
+    tipEl.innerHTML = `<b>${esc(g.title)}</b><span>${CONSOLE_BY_ID[g.console].short}${g.platinum ? ' Platinum' : ''} · ${Case.year(g)} · ${esc(REGIONS[g.region]?.name || g.region)}${g.format !== 'boxed' ? ' · ' + FORMATS[g.format] : ''}${Collection.caseName(g) ? ' · ' + Collection.caseName(g) : ''}</span>`;
     tipEl.classList.add('vis');
   });
   host.addEventListener('pointerout', e => { if (!e.relatedTarget || !e.relatedTarget.closest || !e.relatedTarget.closest('[data-id]')) tipEl.classList.remove('vis'); });
@@ -672,7 +672,7 @@
       }
       row.append(thumb);
       row.insertAdjacentHTML('beforeend', `
-        <span class="ltitle"><b title="${esc(g.title)}">${esc(g.title)}</b><small>${c.short}${g.platinum ? ' Platinum' : ''} · ${Case.year(g)}${g.format !== 'boxed' ? ` · ${FORMATS[g.format]}` : ''}</small>${g.format !== 'boxed' ? `<i class="kc">${FORMATS[g.format]}</i>` : ''}${g.platinum ? '<i class="kc plat-tag">Platinum</i>' : ''}</span>
+        <span class="ltitle"><b title="${esc(g.title)}">${esc(g.title)}</b><small>${c.short}${g.platinum ? ' Platinum' : ''} · ${Case.year(g)}${g.format !== 'boxed' ? ` · ${FORMATS[g.format]}` : ''}${Collection.caseName(g) ? ` · ${Collection.caseName(g)}` : ''}</small>${g.format !== 'boxed' ? `<i class="kc">${FORMATS[g.format]}</i>` : ''}${g.platinum ? '<i class="kc plat-tag">Platinum</i>' : ''}${Collection.caseName(g) ? `<i class="kc">${Collection.caseName(g)}</i>` : ''}</span>
         <span class="lcon"><i class="kc" style="--fc:${FAMILIES.find(f => f.id === c.fam).color}">${c.short}</i></span>
         <span class="lyear" title="${esc(Case.date(g.released, true))}">${Case.year(g)}</span>
         <span class="lregion" title="${esc(REGIONS[g.region]?.long || g.region)}">${esc(g.region)}</span>
@@ -717,7 +717,7 @@
     st.className = 'stage';
     st.append(tile);
     cell.append(st);
-    cell.insertAdjacentHTML('beforeend', `<span class="cap"><b>${esc(g.title)}</b><small>${c.short}${g.platinum ? ' Platinum' : ''} · ${Case.year(g)} · ${esc(g.region)}${g.format !== 'boxed' ? ` · ${FORMATS[g.format]}` : ''}</small></span>`);
+    cell.insertAdjacentHTML('beforeend', `<span class="cap"><b>${esc(g.title)}</b><small>${c.short}${g.platinum ? ' Platinum' : ''} · ${Case.year(g)} · ${esc(g.region)}${g.format !== 'boxed' ? ` · ${FORMATS[g.format]}` : ''}${Collection.caseName(g) ? ` · ${Collection.caseName(g)}` : ''}</small></span>`);
     return cell;
   }
   const groupHead = (gr, n) => `<div class="ghead">${gr.art ? `<span class="spot-art">${gr.art}</span>` : ''}<b>${esc(gr.name)}</b><i>${n} ${n === 1 ? 'copy' : CFG ? 'copies' : 'games'}</i></div>`;
@@ -1014,7 +1014,7 @@
     SC.cap.innerHTML = `<div class="sc-fade">
       <p class="sc-eyebrow"><span class="spot-art">${CONSOLE_ART[g.console] || ''}</span>${esc(c.name)} · ${esc(REGIONS[g.region]?.name || g.region)}</p>
       <h2>${esc(g.title)}</h2>
-      <p class="sc-meta">${[Case.year(g), g.publisher, g.format !== 'boxed' && FORMATS[g.format], g.platinum && 'Platinum'].filter(Boolean).map(esc).join(' · ')}</p>
+      <p class="sc-meta">${[Case.year(g), g.publisher, g.format !== 'boxed' && FORMATS[g.format], g.platinum && 'Platinum', Collection.caseName(g)].filter(Boolean).map(esc).join(' · ')}</p>
       <button type="button" class="sc-go">Take a closer look</button></div>`;
     $$('.sc-seg', SC.track).forEach(s => s.classList.toggle('on', s.dataset.key === groupOf(g).key));
     $('.sc-pos', SC.wrap).textContent = `${i + 1} / ${games.length}`;
@@ -1331,6 +1331,7 @@
         fact('Edition', esc(g.edition)),
         fact('Pack', esc(pack)),
         fact('Format', esc(format)),
+        fact('Case', g.bigCase && esc('Big case: EA\'s thick PC case of the early 2000s')),
         fact('Activates on', L && esc(L.name)),
         fact('Also digital', g.alsoDigital && esc(g.launcher === 'ea' ? 'In the EA app' : `On ${LAUNCHERS[g.launcher]?.name || 'a launcher'}`)),
       ]);
@@ -1478,10 +1479,10 @@
       // what tells the copies apart: the format, region or launcher only where they differ
       const differs = f => new Set(fam.map(f)).size > 1;
       const how = x => x.format === 'digital' && x.launcher && x.launcher !== 'none' ? LAUNCHERS[x.launcher]?.name : FORMATS[x.format];
-      const showHow = differs(how), showRegion = differs(x => x.region);
+      const showHow = differs(how), showRegion = differs(x => x.region), showCase = differs(Collection.caseKind);
       const item = x => {
         const where = on(x).map(c => CONSOLE_BY_ID[c].name).join(' / ') + (x.mac ? ' / Mac' : '');
-        const what = [x.title !== own.title && x.title, x.edition, showHow && how(x), showRegion && x.region, Case.year(x)].filter(Boolean).join(' · ');
+        const what = [x.title !== own.title && x.title, x.edition, showHow && how(x), showCase && Collection.caseKind(x), showRegion && x.region, Case.year(x)].filter(Boolean).join(' · ');
         return `<li${x === own ? ' class="on" aria-current="true"' : ''}><button type="button" data-go="${esc(x === own ? g.id : x.id)}">${esc(where)}</button><small>${esc(what)}</small></li>`;
       };
       const others = fam.some(x => on(x).some(c => !on(own).includes(c))), same = fam.some(x => x !== own && x.console === own.console);

@@ -70,7 +70,7 @@ window.STORE_LOGOS = {
   rockstar: `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x=".5" y=".5" width="23" height="23" rx="5" fill="#fcaf17"/><text x="3.6" y="19.5" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="16" fill="#111">R</text><polygon points="17.5,2.8 18.5,5.62 21.49,5.7 19.12,7.53 19.97,10.4 17.5,8.7 15.03,10.4 15.88,7.53 13.51,5.7 16.5,5.62" fill="#fff" stroke="#111" stroke-width=".9" stroke-linejoin="round"/></svg>`,
 };
 
-/* Where a copy was sold: the code printed on the box (AUS, EUR, HOL, UK, USA, JPN) when it is
+/* Where a copy was sold: the code printed on the box (AUS, EUR, HOL, UK, ASIA, USA, JPN) when it is
    known, else just the standard it plays on. std groups them for the filter: a PAL copy wants
    a PAL console, and a 3DS only plays games from its own region. */
 window.REGIONS = {
@@ -78,6 +78,7 @@ window.REGIONS = {
   'EUR':    { name: 'EUR',    long: 'Europe',                    std: 'PAL' },
   'HOL':    { name: 'HOL',    long: 'Netherlands',               std: 'PAL' },
   'UK':     { name: 'UK',     long: 'United Kingdom',            std: 'PAL' },
+  'ASIA':   { name: 'ASIA',   long: 'Asia-Pacific',              std: 'PAL' },
   'PAL':    { name: 'PAL',    long: 'PAL — Europe or Australia', std: 'PAL' },
   'USA':    { name: 'USA',    long: 'United States',             std: 'NTSC-U' },
   'NTSC-U': { name: 'NTSC-U', long: 'NTSC-U — the Americas',     std: 'NTSC-U' },

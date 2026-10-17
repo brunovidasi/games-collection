@@ -57,6 +57,7 @@ const FIELDS = [
 
     // ---- this copy ----
     'format'       => ['label' => 'Format', 'group' => 'copy', 'type' => 'select', 'col' => 'format', 'always' => true, 'options' => 'format_options', 'sync' => ['steam', 'nintendo', 'ea', 'rockstar']],
+    'barcode'      => ['label' => 'Barcode', 'group' => 'copy', 'type' => 'text', 'private' => true, 'help' => 'The number under the barcode on the box (EAN-13 or UPC): it tells one print from another.'],
     'launcher'     => ['label' => 'Launcher', 'group' => 'copy', 'type' => 'select', 'col' => 'launcher', 'options' => 'launcher_options', 'help' => 'Where a PC copy activates.', 'sync' => ['steam', 'ea', 'rockstar']],
     'alsoDigital'  => ['label' => 'Also in a launcher', 'group' => 'copy', 'type' => 'bool', 'col' => 'also_digital', 'help' => 'A disc whose code was redeemed in Steam or the EA app.'],
     'mac'          => ['label' => 'Plays on Mac', 'group' => 'copy', 'type' => 'bool', 'col' => 'mac', 'sync' => ['steam']],
@@ -161,6 +162,7 @@ const CONSOLE_FAMILIES = [
 
 const REGIONS = [
     'AUS' => 'AUS — Australia', 'EUR' => 'EUR — Europe', 'HOL' => 'HOL — Netherlands', 'UK' => 'UK — United Kingdom',
+    'ASIA' => 'ASIA — Asia-Pacific',
     'PAL' => 'PAL — Europe or Australia', 'USA' => 'USA — United States', 'NTSC-U' => 'NTSC-U — the Americas',
     'JPN' => 'JPN — Japan', 'NTSC-J' => 'NTSC-J — Japan',
 ];
