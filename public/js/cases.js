@@ -332,15 +332,20 @@
   // where it shows through both sides of the shell. Its front side (cgbBoard): the chips, the traces and vias, and the
   // coin battery of a game that saves (g.cartBattery: its middle, in mm, when not the usual place); most of it lies
   // behind the label. Its back side (cgbBoardBack, drawn as seen from behind): the traces, the gold contacts along the
-  // bottom, © 1998 Nintendo printed down its side, the holes for the dimple's post and the screw
+  // bottom, © 1998 Nintendo printed down its side, the holes for the dimple's post and the screw. A game with a
+  // battery has the taller board that reaches up to the top of the shell, the battery standing through it so that
+  // it shows from both sides
   const BOARD = 'M4.6 15.4H52.4Q53 15.4 53 16V64.6H4V16Q4 15.4 4.6 15.4Z';
+  const BOARD_TALL = 'M4.6 2.4H52.4Q53 2.4 53 3V64.6H4V3Q4 2.4 4.6 2.4Z';
+  const batteryAt = g => Array.isArray(g.cartBattery) ? g.cartBattery : [38, 13.5];
   const vias = pts => pts.map(([x, y]) => `<circle cx="${x}" cy="${y}" r=".32" fill="#c9a24e"/><circle cx="${x}" cy="${y}" r=".13" fill="#0d2a1a"/>`).join('');
   const traces = (paths, col) => paths.map(d => `<path d="${d}" fill="none" stroke="${col}" stroke-width=".22" stroke-linejoin="round"/>`).join('');
   const cgbBoard = g => {
-    const [bx, by] = Array.isArray(g.cartBattery) ? g.cartBattery : [38, 13.5];
+    const [bx, by] = batteryAt(g), top = g.cartBattery ? 2.4 : 15.4;
     return `<svg viewBox="0 0 57 65" preserveAspectRatio="none" aria-hidden="true">
-    <path d="${BOARD}" fill="#1a5638"/>
-    <path d="M4.6 15.6H52.4" stroke="#8fd0a4" stroke-opacity=".5" stroke-width=".25"/>
+    <path d="${g.cartBattery ? BOARD_TALL : BOARD}" fill="#1a5638"/>
+    <path d="M4.6 ${top + .2}H52.4" stroke="#8fd0a4" stroke-opacity=".5" stroke-width=".25"/>
+    ${g.cartBattery ? traces(['M6 5H20L22 7V15.4', 'M6 9H14L16 11V15.4', 'M24 4V12'], '#2f8a5a') + vias([[6.8, 5], [6.8, 9], [24, 4], [24, 12]]) : ''}
     ${traces(['M6 17.2H30L32 19.2H46', 'M6 18.4H25', 'M6 19.6H22L24 21.6V30', 'M44 21V40L40 44H18', 'M8 24V52L12 56H44', 'M48 26V58', 'M12 60H45', 'M30 16.4V20'], '#2f8a5a')}
     ${vias([[7, 21.5], [9, 21.5], [27, 16.6], [33, 20.6], [45.5, 19.8], [47.5, 22], [10, 58.8], [16, 58.8], [22, 58.8], [41, 58.8], [47, 60.5], [50, 25]])}
     <rect x="13.6" y="16.3" width="8" height="2.4" rx=".2" fill="#151515"/>
@@ -354,14 +359,22 @@
       <rect x="${bx - 6}" y="${by + 3.6}" width="13" height="1.8" rx=".9" fill="#e2e4e6" stroke="#6d7076" stroke-opacity=".6" stroke-width=".2"/>` : ''}
     </svg>`;
   };
-  const cgbBoardBack = () => `<svg viewBox="0 0 57 65" preserveAspectRatio="none" aria-hidden="true">
-    <path d="${BOARD}" fill="#1a5638"/>
+  const cgbBoardBack = g => {
+    const [bx, by] = batteryAt(g), x = 57 - bx;
+    return `<svg viewBox="0 0 57 65" preserveAspectRatio="none" aria-hidden="true">
+    <path d="${g.cartBattery ? BOARD_TALL : BOARD}" fill="#1a5638"/>
+    ${g.cartBattery ? traces(['M51 5H37L35 7V15.4', 'M51 9H43L41 11V15.4'], '#2f8a5a') + vias([[50.2, 5], [50.2, 9]]) : ''}
     ${traces(['M12 22V40L20 46', 'M18 18V30L34 36', 'M40 20V44L30 50', 'M46 24V52', 'M8 30V54', 'M22 20H36L38 22V30', 'M14 56V50H40V56', 'M26 24V34'], '#2f8a5a')}
     ${vias([[12, 22], [18, 18], [22, 20], [40, 20], [46, 24], [8, 30], [26, 24], [34, 36], [20, 46], [30, 50], [14, 50], [40, 50], [36, 26], [44, 30]])}
     ${Array.from({ length: 32 }, (_, k) => `<rect x="${(4.9 + k * 1.5).toFixed(2)}" y="57.8" width=".95" height="6.6" rx=".15" fill="#d8b766"/>`).join('')}
     <text x="49.6" y="27" transform="rotate(90 49.6 27)" ${SANS} font-size="1.7" fill="#d9b860">© 1998 Nintendo</text>
     <circle cx="28.5" cy="31.3" r="1.6" fill="#0d2a1a"/><circle cx="28.5" cy="46.3" r="2.6" fill="#0d2a1a"/>
+    ${g.cartBattery ? `<circle cx="${x}" cy="${by}" r="8" fill="#c9ccd0"/>
+      <circle cx="${x}" cy="${by}" r="7.3" fill="none" stroke="#8a8d93" stroke-width=".3"/>
+      <circle cx="${x + 2}" cy="${by - 2.5}" r="3" fill="#fff" fill-opacity=".25"/>
+      <rect x="${x - 1.2}" y="${by - 8.6}" width="2.4" height="3.2" rx=".3" fill="#e2e4e6" stroke="#6d7076" stroke-opacity=".6" stroke-width=".2"/>` : ''}
     </svg>`;
+  };
   // the Game Boy Color-only cartridge, traced from photos of real ones: the same size as a Game Boy cartridge
   // but in clear smoky plastic, with no notch (so it stays out of the original Game Boy's power lock), the top
   // corners rounded. GAME BOY COLOR is moulded big in hollow letters across the top, with two ribs under it,
@@ -823,7 +836,7 @@
     // seen through the near one (they come first, so that where the cartridge is drawn flat they lie under its faces)
     const inside = T.clear ? `<div class="cin"><svg viewBox="0 0 ${T.w} ${T.h}" preserveAspectRatio="none" aria-hidden="true"><path d="${CGB_OUTLINE}" fill="${shade(c, -0.08)}" fill-opacity="${CLEAR}"/></svg></div>
       <div class="cin cin-b"><svg viewBox="0 0 ${T.w} ${T.h}" preserveAspectRatio="none" aria-hidden="true"><path d="${CGB_OUTLINE}" fill="${c}" fill-opacity="${CLEAR}"/></svg></div>
-      <div class="cpcb">${cgbBoard(g)}</div><div class="cpcb cpcb-b">${cgbBoardBack()}</div>` : '';
+      <div class="cpcb">${cgbBoard(g)}</div><div class="cpcb cpcb-b">${cgbBoardBack(g)}</div>` : '';
     return `<div class="cart c-${type} k-${styleOf(g)}${g.cartGlitter ? ' glit' : ''}${T.clear ? ' clr' : ''}" style="--cw:${px(T.w * s)};--ch:${px(T.h * s)};--cd:${px(T.dp * s)}">
       ${inside}
       <div class="cf">
