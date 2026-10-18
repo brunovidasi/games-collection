@@ -259,6 +259,9 @@ a { color: inherit; }
 .item.stack:focus-visible > * { outline: 2px solid var(--gold); outline-offset: 2px; }
 /* the spines' lettering as big as their width allows: wider on a bigger screen (js/app.js) */
 .bookcase .sp { font-size: clamp(7px, calc(var(--d) * .6), 17px); }
+/* EA's thick PC cases are deep enough to reach that cap on a wide screen, at about .4 of their depth; on a phone
+   they'd fall under it at .6 and the pack's name would run off both edges, so they keep the .4 everywhere */
+.bookcase .ps-ea-pcgame { font-size: clamp(7px, calc(var(--d) * .41), 17px); }
 /* the last games on a shelf with room at its end lean over onto the one before (js/app.js, leanOf) */
 .item.lean { transform-origin: 0 100%; transform: rotate(calc(var(--lean) * -1deg)); }
 .item.lean:hover, .item.lean:focus-visible { transform: rotate(calc(var(--lean) * -.6deg)) translateY(-12px); }
