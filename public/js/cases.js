@@ -258,6 +258,8 @@
   const spine = (g, s) => el(spineHTML(g, layout(g, s)));
 
   /* ---------- back ---------- */
+  // the barcode in the bottom corner, with its number printed under the stripes once it has one (g.barcode)
+  const bar = g => g.barcode ? `<span class="bar bc"><i></i><span class="bcn">${esc(g.barcode)}</span></span>` : '<span class="bar"></span>';
   function backHTML(g, L) {
     const R = window.REGIONS[g.region] || { name: g.region };
     // a picture of the real back (a SteelBook's), else a back printed from the game's details
@@ -268,7 +270,7 @@
         <div class="bkin">
           <div class="bkt">${esc(g.title)}</div>
           <div class="bkm"><b>Released</b> ${date(g.released, true)}<br>${[g.publisher, g.developer].filter(Boolean).map(esc).join(' · ')}<br>${esc(g.genre || '')}</div>
-          <div class="bkf"><span class="rg">${esc(R.name)}</span><span class="bar"></span></div>
+          <div class="bkf"><span class="rg">${esc(R.name)}</span>${bar(g)}</div>
         </div>
       </div>
     </div>`;
@@ -1373,5 +1375,5 @@
   // a loose cartridge that shows its title on its top edge (or a tag with it), so it can stand on its side on the shelf
   const showsTop = g => { const T = CART[mediaType(g)]; return !!T && titledTop(g, T); };
 
-  window.Case = { dims, layout, front, spine, box, slab, cart, cartSize, top, topSize, showsTop, isCart, date, year, esc, styleOf };
+  window.Case = { dims, layout, front, spine, bar, box, slab, cart, cartSize, top, topSize, showsTop, isCart, date, year, esc, styleOf };
 })();

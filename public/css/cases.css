@@ -496,6 +496,10 @@
 .bkf { margin-top: auto; display: flex; align-items: flex-end; justify-content: space-between; gap: .4em; }
 .rg { font: 700 .4em/1 'Space Grotesk', sans-serif; letter-spacing: .1em; border: 1px solid currentColor; padding: .3em .45em; border-radius: .2em; }
 .bar { width: 3em; height: 1.4em; background: repeating-linear-gradient(90deg, #000 0 1px, #fff 1px 2px, #000 2px 4px, #fff 4px 5px, #000 5px 6px, #fff 6px 8px); border: .2em solid #fff; }
+/* with its number: the stripes on a white label, the digits under them as the box prints them */
+.bar.bc { height: auto; background: #fff; display: flex; flex-direction: column; align-items: stretch; }
+.bc i { height: 1.4em; background: repeating-linear-gradient(90deg, #000 0 1px, #fff 1px 2px, #000 2px 4px, #fff 4px 5px, #000 5px 6px, #fff 6px 8px); }
+.bcn { font: 500 .32em/1 'Space Grotesk', sans-serif; color: #000; text-align: center; letter-spacing: .02em; font-variant-numeric: tabular-nums; white-space: nowrap; padding-top: .35em; }
 
 /* ---------- 3D case ---------- */
 /* its depth and its spine's lettering, registered so a flight can animate them (js/cases.js, assemble) */

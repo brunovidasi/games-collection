@@ -1505,7 +1505,7 @@
     function ownerHtml(g) {
       if (!SITE.admin) return '';
       const face = g.faceOut === true ? 'Faces out' : g.faceOut === false ? 'On its side' : 'Faces out: auto';
-      const code = SITE.barcodes?.[g.id];
+      const code = g.barcode;
       return `<div class="dw-owner">
         <button type="button" data-flag="fav" aria-pressed="${!!g.fav}">★ Favourite</button>
         <button type="button" data-flag="faceOut" aria-pressed="${g.faceOut === true}"${g.faceOut === false ? ' class="side"' : ''}>${face}</button>
@@ -1540,13 +1540,15 @@
       render(false);
     }
     async function barcode(g, button) {
-      const was = SITE.barcodes?.[g.id] || null;
+      const was = g.barcode || null;
       const code = await Barcode.scan({ title: [g.title, CONSOLE_BY_ID[g.console]?.name].filter(Boolean).join(' · '), current: was });
       if (code === null || code === was) return;
       button.disabled = true;
       try {
         const json = await ownerPost('admin/barcode', { id: g.id, barcode: code });
-        (SITE.barcodes ||= {})[g.id] = json.barcode;
+        g.barcode = json.barcode || undefined;
+        // and on the back of the case in the spotlight
+        if (cur?.g === g) cur.obj.querySelectorAll('.bkf .bar').forEach(b => b.outerHTML = Case.bar(g));
         if (json.also.length) alert(`Saved. ${json.also.map(x => `${x.title} (${x.console})`).join(', ')} ${json.also.length > 1 ? 'have' : 'has'} the same barcode: is one of them the wrong game?`);
       } catch (err) {
         alert(err.message);
