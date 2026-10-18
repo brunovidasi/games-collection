@@ -157,6 +157,8 @@ html.gta {
 
 @media (max-width: 820px) {
   .gta body::before { height: 45vh; opacity: .7; }
+}
+@media (max-width: 960px) {
   .gta .brand { font-size: min(27px, 9.2cqi); line-height: 1.1; }
   .gta .topmenu { background: rgb(10,6,16); }
   .gta .topnav a { font-size: 14px; }

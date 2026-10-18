@@ -1,0 +1,187 @@
+/* mario.css — the Super Mario collection's own look (/mario, a class on <html>), after World 1-1: a blue sky with
+   pixel clouds behind the page, green hills and the brick ground at its foot, the bookcase a brick wall with the
+   underground's dark behind the cases, the buttons bricks and what is picked a gold ? block, and the meters
+   a P-meter filling block by block. A ? block (assets/qblock.svg) bumps beside the title and a coin pops out of it,
+   and a coin pops out of whichever case the pointer is on. Lilita One for the big words, Press Start 2P for the
+   small print the NES would show, Nunito for the rest (the fonts css/pokemon.css loads).
+   Everything else is css/site.css and css/collection.css. */
+
+.mario {
+  --bg: #2f5fc4; --surface: #1d1a3a; --surface-2: #2a2650;
+  --text: #fff; --ink: #2a1400;
+  --gold: #f8b800;                 /* the accent: a ? block's gold */
+  --acc: #f8b800; --acc-dk: #c86c00; --acc-glow: rgba(248,184,0,.45);
+  --red: #e52521; --green: #43b047; --brick: #c84c0c; --mortar: #5a2c00;
+  /* bricks: two rows a tile, the joints staggered, each brick lit along its top */
+  --bricks: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' shape-rendering='crispEdges'%3E%3Crect width='32' height='32' fill='%23c84c0c'/%3E%3Cg fill='%235a2c00'%3E%3Crect width='32' height='2'/%3E%3Crect y='16' width='32' height='2'/%3E%3Crect width='2' height='16'/%3E%3Crect x='16' y='16' width='2' height='16'/%3E%3C/g%3E%3Cg fill='%23f0905c' fill-opacity='.55'%3E%3Crect x='2' y='2' width='30' height='1'/%3E%3Crect y='18' width='16' height='1'/%3E%3Crect x='18' y='18' width='14' height='1'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 32px 32px var(--brick);
+  /* one row of bricks, for the edge under the top bar */
+  --brick-row: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='10' shape-rendering='crispEdges'%3E%3Crect width='32' height='10' fill='%23c84c0c'/%3E%3Cg fill='%235a2c00'%3E%3Crect width='32' height='2'/%3E%3Crect y='8' width='32' height='2'/%3E%3Crect x='0' width='2' height='10'/%3E%3Crect x='16' width='2' height='10'/%3E%3C/g%3E%3Crect x='2' y='2' width='14' height='1' fill='%23f0905c'/%3E%3Crect x='18' y='2' width='14' height='1' fill='%23f0905c'/%3E%3C/svg%3E") 0 0 / 32px 10px repeat-x;
+  --under: #120e26;
+  --line: rgba(255,255,255,.2); --line-strong: rgba(255,255,255,.45);
+  --font-display: 'Lilita One', 'Nunito', system-ui, sans-serif;
+  --font-ui: 'Nunito', system-ui, sans-serif;
+  --font-pixel: 'Press Start 2P', ui-monospace, monospace;
+}
+
+/* ---------- the sky: the games' clouds (white puffs outlined, shaded underneath, with eyes: assets/mario-clouds.svg)
+   in a band along the top, repeating sideways only so none comes down onto the hills; deep blue at the top, the hills
+   at the foot (rising to about 80% of the height) ---------- */
+.mario body::before {
+  background:
+    url('../assets/mario-clouds.svg') 0 0 / 1800px 520px repeat-x,
+    radial-gradient(ellipse 30% 22% at 12% 104%, #2f8a34 0 98%, transparent 100%),
+    radial-gradient(ellipse 22% 15% at 34% 104%, #3c9e40 0 98%, transparent 100%),
+    radial-gradient(ellipse 34% 26% at 86% 106%, #2f8a34 0 98%, transparent 100%),
+    linear-gradient(#1c3f94 0%, #2f5fc4 40%, #4a80e8 100%); }
+
+/* ---------- type ---------- */
+/* the words straight on the sky keep a soft dark edge, so they read where they pass over a white cloud */
+.mario :is(.shead p, .tr-head small, .ghead i, .count, .cap, .cell.missing .cap, .packs h3, .meter .nums > span) { text-shadow: 0 1px 2px rgba(10,20,60,.85), 0 0 8px rgba(10,20,60,.5); }
+.mario :is(.brand, .hero h1, .ghead b, .shead h2, .tr-head h3, .empty-msg b, .spot-info h2, .meter .nums b, #tip b, .dw-glance b) { font-family: var(--font-display); font-weight: 400; }
+.mario .brand { font-size: 21px; letter-spacing: .01em; }
+.mario .brand span { color: var(--acc); }
+/* the title in the logo's way: each letter its own colour, edged in black, on a hard drop shadow */
+.mario .hero h1 { letter-spacing: .01em; color: #fff; -webkit-text-stroke: 2px #1a0d00; paint-order: stroke fill;
+  text-shadow: 0 5px 0 #1a0d00, 0 14px 28px rgba(10,20,60,.5); }
+.mario .hero h1 .ltr:nth-child(4n+1) { color: var(--red); }
+.mario .hero h1 .ltr:nth-child(4n+2) { color: var(--acc); }
+.mario .hero h1 .ltr:nth-child(4n+3) { color: var(--green); }
+.mario .hero h1 .ltr:nth-child(4n+4) { color: #49a6ff; }
+.mario .hero h1 em { color: #fff; font-style: normal; }
+.mario .eyebrow { font: 400 11px/20px var(--font-pixel); letter-spacing: 0; text-transform: none; color: #fff; margin-bottom: 6px; text-shadow: 2px 2px 0 rgba(0,0,0,.5); }
+.mario .hero p { font-weight: 700; opacity: .9; }
+.mario .hero::before { background: linear-gradient(rgba(14,28,80,.55), rgba(14,28,80,0)); }
+.mario :is(.plate, .ghostbox b, .ghostbox i, .tr-head .yr, .want .ghostcase) { font-family: var(--font-pixel); font-weight: 400; }
+
+/* the ? block beside the title: it bumps now and then, as if hit from below, and a coin spins up out of it */
+.hero .qblock { display: none; }
+.mario .hero .qblock { display: inline-block; position: relative; width: .78em; height: .78em; margin: 0 0 0 .24em; vertical-align: -.02em; }
+.mario .hero .qblock img { display: block; width: 100%; height: 100%; image-rendering: pixelated; filter: drop-shadow(0 6px 0 rgba(26,13,0,.55)); animation: bump 4s ease-out infinite; }
+.mario .hero .qblock .coin { position: absolute; left: 22%; top: 0; width: 56%; height: 70%; opacity: 0; animation: coin-up 4s ease-out infinite; }
+@keyframes bump { 0%, 4%, 14%, 100% { transform: none; } 8% { transform: translateY(-22%); } }
+@keyframes coin-up { 0%, 5% { opacity: 0; transform: translateY(0) scaleX(1); } 7% { opacity: 1; } 18% { transform: translateY(-140%) scaleX(.2); } 28% { opacity: 1; transform: translateY(-90%) scaleX(1); } 34%, 100% { opacity: 0; transform: translateY(-110%) scaleX(.2); } }
+
+/* a coin: gold, edged darker, with its slot shining down the middle */
+.mario .coin, .mario :is(.bookcase .item, .cell .gt)::before {
+  background: linear-gradient(90deg, transparent 40%, #fff4d6 40% 60%, transparent 60%) center / 100% 60% no-repeat, radial-gradient(ellipse at 50% 50%, #ffd860 0 52%, #f8b800 54% 64%, #c86c00 66% 70%, transparent 72%); }
+
+/* the figures in the top bar: the platformers counted like a save file's stars, the ones still to find in gold */
+.mario .figures { border-left-color: var(--line-strong); }
+.mario .figures span { font-weight: 700; opacity: .9; text-shadow: 0 2px 0 rgba(0,0,0,.45); }
+.mario .figures b { font-family: var(--font-display); font-weight: 400; font-size: 16px; }
+.mario .figures > span:first-child b::before { content: "★"; margin-right: 3px; color: var(--acc); }
+.mario .figures > span:last-child b { color: var(--acc); }
+
+/* ---------- the top bar: the ground, brick by brick; the controls bricks, what is picked a ? block ---------- */
+/* the bar itself the underground's dark, so its small words read, on a row of bricks along its foot */
+.mario .topbar { background: linear-gradient(#1d1846, #120e26); border-bottom: 0; box-shadow: 0 6px 20px rgba(10,20,60,.45); }
+.mario .topbar::after { content: ""; position: absolute; left: 0; right: 0; bottom: -6px; height: 10px; background: var(--brick-row); pointer-events: none; }
+.mario .topnav a { font-weight: 800; border-radius: 6px; text-shadow: 0 2px 0 rgba(0,0,0,.45); }
+.mario .topnav a[aria-current="page"] { background: var(--acc); color: var(--ink); text-shadow: none; box-shadow: inset 0 -3px 0 var(--acc-dk), inset 0 2px 0 #ffd860, 0 0 0 2px var(--mortar); }
+.mario .topnav a:not([aria-current="page"]):hover { background: rgba(0,0,0,.25); }
+.mario .topnav a[aria-current="page"]:hover { background: #ffc828; }
+.mario .filters { background: linear-gradient(rgba(28,63,148,.95), rgba(22,50,122,.95)); border-bottom: 2px solid rgba(0,0,0,.35); }
+.mario .chip { border-radius: 6px; background: linear-gradient(#d4581a, #a63c08); border: 2px solid var(--mortar); box-shadow: inset 0 2px 0 rgba(255,200,150,.35), 0 4px 12px rgba(10,20,60,.35); }
+.mario .chip:hover { border-color: var(--acc); }
+.mario .chip.on, .mario .chip.all.on { background: var(--acc); color: var(--ink); border-color: var(--mortar); box-shadow: inset 0 -3px 0 var(--acc-dk), inset 0 2px 0 #ffd860; }
+.mario .chip.on .lab i { opacity: .8; }
+.mario .chip.all { box-shadow: 10px 0 12px -4px #1c3f94, inset 0 2px 0 rgba(255,200,150,.35); }
+.mario .famname { font-weight: 800; }
+.mario :is(.search, .dd-button, .seg) { border-radius: 6px; border: 2px solid rgba(0,0,0,.55); background: rgba(14,20,50,.7); }
+.mario .search:focus-within { border-color: var(--acc); }
+.mario .dd-menu { border-radius: 8px; background: var(--surface); border: 2px solid rgba(0,0,0,.55); }
+.mario .dd-menu li { border-radius: 5px; }
+.mario .dd-menu li[aria-selected="true"] { color: var(--acc); }
+.mario .seg button { font-weight: 800; }
+.mario .seg button + button { border-left-color: rgba(255,255,255,.12); }
+.mario :is(.seg button.on, .pills button.on, .series-nav a.on, .grouping button.on) { background: var(--acc); color: var(--ink); border-color: transparent; }
+.mario .pills button { font-weight: 700; background: rgba(14,20,50,.55); border-color: var(--line-strong); }
+.mario .count { font-weight: 700; }
+.mario :focus-visible { outline-color: var(--acc); }
+
+/* ---------- the shelf: a brick wall, the underground's dark behind the cases, each shelf a row of ground blocks ---------- */
+.mario .bookcase { border-radius: 4px; background: var(--bricks); box-shadow: 0 0 0 3px var(--mortar), 0 30px 60px rgba(10,20,60,.55); }
+.mario .bookcase::before { height: 22px; border-radius: 4px 4px 0 0; background: var(--bricks); box-shadow: inset 0 -3px 0 var(--mortar); }
+.mario .bay { background: radial-gradient(ellipse 80% 120% at 30% 0%, rgba(90,110,255,.14), transparent 60%), var(--under);
+  box-shadow: inset 0 0 0 3px var(--mortar), inset 0 14px 22px -12px rgba(0,0,0,.85); }
+.mario .bay { --ghost-bg: rgba(255,255,255,.08); --ghost-ink: rgba(255,255,255,.85); --ghost-line: rgba(255,255,255,.5); }
+.mario .board { background:
+    repeating-linear-gradient(90deg, transparent 0 22px, rgba(90,44,0,.6) 22px 24px),
+    linear-gradient(#f0a060, #e09050 40%, #b86828); box-shadow: inset 0 2px 0 rgba(255,230,190,.6), inset 0 -2px 0 var(--mortar); }
+.mario .plate { --pc: var(--ink); border-radius: 2px; background: var(--ink); color: #fff; font-size: 8px; line-height: 12px; letter-spacing: 0; text-shadow: none; box-shadow: none; padding: 2px 6px; }
+.mario .plate::before, .mario .plate::after { display: none; }
+.mario .item:hover, .mario .item:focus-visible { filter: brightness(1.1) drop-shadow(0 10px 16px rgba(0,0,0,.7)); }
+
+/* a coin popping out of the case the pointer is on (not in the rows, which clip above their cases) */
+.mario :is(.bookcase .item, .cell .gt)::before { content: ""; position: absolute; z-index: 6; left: 50%; bottom: calc(100% + 8px); width: 18px; height: 24px; margin-left: -9px;
+  filter: drop-shadow(0 3px 3px rgba(0,0,0,.5)); opacity: 0; transform: translateY(10px); transition: opacity .12s, transform .35s cubic-bezier(.3,1.8,.5,1); pointer-events: none; }
+@media (hover: hover) {
+  .mario :is(.bookcase .item:hover, .cell:hover .gt)::before { opacity: 1; transform: none; animation: spin 1.1s .35s linear infinite; }
+}
+.mario :is(.bookcase .item:focus-visible, .cell:focus-visible .gt)::before { opacity: 1; transform: none; }
+@keyframes spin { 0%, 100% { transform: scaleX(1); } 25% { transform: scaleX(.15); } 50% { transform: scaleX(1); } 75% { transform: scaleX(.15); } }
+
+/* ---------- grid, rows, list ---------- */
+.mario .ghead { border-bottom: 3px solid var(--mortar); }
+.mario .ghead b { font-size: 1.5rem; text-shadow: 0 3px 0 rgba(0,0,0,.35); }
+.mario .ghead i { font-weight: 700; }
+@media (hover: hover) { .mario .cell:hover .cap b { color: var(--acc); } }
+.mario .cap b { font-weight: 800; }
+.mario .cap small { opacity: .85; }
+.mario .list { border-radius: 6px; background: rgba(18,14,38,.92); border: 3px solid var(--mortar); overflow: hidden; }
+.mario .lrow:hover, .mario .lrow:focus-visible { background: rgba(248,184,0,.1); }
+.mario .lsort.on { color: var(--acc); }
+
+/* ---------- a game up close: a starry night over the Mushroom Kingdom, the controls bricks ---------- */
+.mario .overlay { background: radial-gradient(ellipse 55% 60% at var(--spot-x, 50%) var(--spot-y, 50%), rgba(90,140,255,.34), rgba(16,26,80,.9) 60%, rgba(6,8,26,.97)); }
+.mario :is(.spot-close, .spot-nav, .views) { border-radius: 6px; background: linear-gradient(#d4581a, #a63c08); border: 2px solid var(--mortar); }
+.mario .views button { font-weight: 800; }
+.mario :is(.views button.on, .views button.open-btn) { background: var(--acc); color: var(--ink); }
+.mario .spot-eyebrow { color: var(--acc); font-weight: 800; }
+.mario .spot-drawer { border-color: var(--mortar); }
+.mario .dw-meter i::after { background: var(--green); }
+.mario .dw-packs li.on button { color: var(--acc); }
+.mario #tip { border-radius: 4px; background: #fff; color: var(--ink); border: 3px solid var(--ink); box-shadow: inset 0 0 0 2px #f0d8a8, 0 8px 18px rgba(0,0,0,.5); }
+.mario #tip b { font-size: 16px; }
+
+/* ---------- the checklist: each game on a stretch of the underground, on a ledge of bricks; the meters P-meters ---------- */
+.mario .series-nav a { border-radius: 6px; font-weight: 700; background: rgba(14,20,50,.55); border-color: var(--line-strong); }
+.mario .shead { border-bottom: 3px solid rgba(0,0,0,.3); }
+.mario .shead h2 { text-shadow: 0 4px 0 rgba(0,0,0,.35); }
+.mario .shead p { opacity: .85; font-weight: 600; }
+.mario .tr-head h3 { font-size: clamp(18px, 2.2vw, 24px); }
+.mario .tr-head .yr { font-size: 10px; color: var(--acc); letter-spacing: 0; }
+.mario .tr-head .tags { margin-top: 0; }
+.mario .tag { border-radius: 4px; }
+.mario .tag.remake { border-color: rgba(248,184,0,.75); color: var(--acc); }
+.mario .tag.disc { border-color: rgba(140,200,255,.8); color: #cfe6ff; }
+.mario .rack { border-radius: 4px; background: radial-gradient(ellipse 70% 100% at 30% 0%, rgba(90,110,255,.12), transparent 70%), var(--under);
+  border: 3px solid var(--mortar); border-bottom-width: 0; box-shadow: inset 0 10px 16px -10px rgba(0,0,0,.85), 0 12px 0 var(--brick), 0 14px 0 var(--mortar); margin-bottom: 14px; }
+.mario .ghostbox { border-color: rgba(255,255,255,.35); color: rgba(255,255,255,.75); background: rgba(255,255,255,.04); }
+.mario .ghostbox b { font-size: 9px; line-height: 1.3; }
+.mario .ghostbox i { font-size: 6px; line-height: 1.4; }
+.mario .cell.missing .cap small { color: var(--acc); }
+/* the P-meter: a dark track edged in black, filling in gold blocks */
+.mario .meter .nums b { font-size: 19px; }
+.mario .meter .nums b::before { content: "×"; margin-right: 6px; font: 400 10px/1 var(--font-pixel); color: var(--acc); vertical-align: 3px; }
+.mario .meter .track { height: 12px; border-radius: 2px; background: #1a1430; border: 2px solid #000; box-shadow: inset 0 2px 0 rgba(0,0,0,.4); }
+.mario .meter .track i { background: repeating-linear-gradient(90deg, #ffd860 0 8px, #f8b800 8px 10px, #000 10px 12px); box-shadow: none; border-radius: 0; }
+.mario .want { border-radius: 6px; background: rgba(18,14,38,.75); border-color: rgba(255,255,255,.35); }
+.mario .want a { color: var(--acc); }
+.mario .packs h3 { color: var(--acc); font-weight: 800; }
+.mario .series.wantlist .shead h2 em { color: var(--acc); }
+
+/* the ? block beside Super Mario in the top bar */
+.nav-block { display: none; width: 13px; height: 13px; margin: 0 6px -1px 0; vertical-align: -2px; image-rendering: pixelated; }
+.mario .nav-block { display: inline-block; }
+
+@media (max-width: 960px) {
+  .mario .brand { font-size: min(26px, 9cqi); }
+  .mario .topmenu { background: linear-gradient(#1d1846, #120e26); border-top: 4px solid var(--brick); }
+}
+@media (max-width: 640px) {
+  .mario .eyebrow { font-size: 9px; }
+  .mario .hero h1 { -webkit-text-stroke-width: 1.5px; }
+  .mario .ghostbox b { font-size: 7px; }
+}
+@media (prefers-reduced-motion: reduce) { .mario .hero .qblock :is(img, .coin), .mario :is(.bookcase .item, .cell .gt)::before { animation: none !important; } }

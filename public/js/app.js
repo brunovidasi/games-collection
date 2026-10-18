@@ -39,6 +39,10 @@
   // the collections picked at the top (js/sims.js, js/gta.js); CFG is the one showing, null for the whole shelf
   const COLLECTIONS = window.COLLECTIONS || {};
   let CFG = null, COL = '';
+  // a collection turned off in Settings is, for visitors, a plain filter on the shelf (SITE.plain, from index.php):
+  // only its games, in the shelf's own look, by console, with the shelf's views and header, and no checklist
+  (window.SITE?.plain || []).forEach(k => { if (COLLECTIONS[k]) COLLECTIONS[k].plain = true; });
+  const themed = () => !!CFG && !CFG.plain;
 
   /* ---------- remembered choices (this browser only) ---------- */
   const store = {
@@ -53,7 +57,7 @@
   };
   let GROUP = 'console', groupOf = byConsole;
   // a collection's ways of grouping its games: its groups (js/pokemon.js), or its one group; GROUPING is the one showing
-  const groupingsOf = col => { const c = COLLECTIONS[col]; return !c ? [] : c.groups || [{ key: 'game', noun: c.groupNoun, fn: c.group }]; };
+  const groupingsOf = col => { const c = COLLECTIONS[col]; return !c || c.plain ? [] : c.groups || [{ key: 'game', noun: c.groupNoun, fn: c.group }]; };
   let GROUPING = null;
 
   /* ---------- sorting: the menu and the list's headers set the same sort ---------- */
@@ -92,7 +96,7 @@
     newest: { key: 'released', dir: 'desc', label: 'Newest release first', short: 'Newest first' },
     oldest: { key: 'released', dir: 'asc', label: 'Oldest release first', short: 'Oldest first' },
   };
-  const validSort = s => s && SORT_BY[s.key] && (s.key !== 'group' || CFG) && (s.dir === 'asc' || s.dir === 'desc') ? { key: s.key, dir: s.dir } : { key: GROUP, dir: 'asc' };
+  const validSort = s => s && SORT_BY[s.key] && (s.key !== 'group' || themed()) && (s.dir === 'asc' || s.dir === 'desc') ? { key: s.key, dir: s.dir } : { key: GROUP, dir: 'asc' };
   function sortList(list, { key, dir }) {
     const { value, plain } = SORT_BY[key];
     const sign = dir === 'desc' ? -1 : 1;
@@ -110,10 +114,10 @@
   // computer and on a phone (the phone's is the bar's own breakpoint, css/site.css)
   const SITE = window.SITE || {};
   const SITE_VIEWS = (SITE.views || ['shelf', 'rows', 'grid', 'showcase', 'list']).filter(v => v !== 'checklist');
-  const viewsOf = col => [...SITE_VIEWS, ...(COLLECTIONS[col]?.checklist ? ['checklist'] : [])];
+  const viewsOf = col => [...SITE_VIEWS, ...(COLLECTIONS[col]?.checklist && !COLLECTIONS[col].plain ? ['checklist'] : [])];
   const device = () => matchMedia('(max-width: 820px)').matches ? 'mobile' : 'desktop';
   const defaultView = col => {
-    const v = SITE.defaultViews?.[col || 'shelf']?.[device()];
+    const v = SITE.defaultViews?.[col && !COLLECTIONS[col]?.plain ? col : 'shelf']?.[device()];
     return viewsOf(col).includes(v) ? v : SITE_VIEWS[0] || 'shelf';
   };
   // the view last picked, remembered for each page on a computer and on a phone apart
@@ -162,13 +166,35 @@
   function hero() {
     const figures = $('#figures');
     if (figures) {
-      const consoles = CONSOLES.filter(c => !c.hidden && DB.some(g => g.console === c.id));
-      const figs = CFG ? CFG.figures(ALL) : [[consoles.length, 'Consoles'], [tally(DB), 'Games']];
+      const consoles = CONSOLES.filter(c => !c.hidden && ALL.some(g => g.console === c.id));
+      const figs = themed() ? CFG.figures(ALL) : [[consoles.length, 'Consoles'], [tally(ALL), 'Games']];
       figures.innerHTML = figs.map(([n, label, short]) => `<span><b>${n}</b> ${short
         ? `<span class="fig-long">${esc(label)}</span><span class="fig-short">${esc(short)}</span>` : esc(label)}</span>`).join('');
     }
-    $('#hero').innerHTML = CFG ? CFG.hero(ALL) : `<header class="hero hero-figures"><h1 class="sr-only">${esc(SITE.pages?.shelf?.title || document.title)}</h1></header>`;
+    $('#hero').innerHTML = themed() ? CFG.hero(ALL) : `<header class="hero hero-figures"><h1 class="sr-only">${esc(SITE.pages?.shelf?.title || document.title)}</h1></header>`;
+    fitBar();
   }
+
+  // the name and the figures never run under the pages: each collection letters them its own width, so where they
+  // would, the bar steps them down until they clear (css/site.css): short labels, the figures under the name,
+  // then fewer of them, then none
+  const FIT = ['fit-short', 'fit-stack', 'fit-fewer', 'fit-fewest', 'fit-none'];
+  function fitBar() {
+    const bar = $('.topbar'), box = $('.brandbox'), nav = $('.topnav'), figs = $('#figures');
+    if (!bar || !box || !nav || !figs) return;
+    bar.classList.remove(...FIT);
+    const clash = () => {
+      if (getComputedStyle(figs).display === 'none' || getComputedStyle(nav).display === 'none') return false;
+      const right = Math.max(...[...box.children].map(el => el.getBoundingClientRect().right));
+      return right + 16 > nav.getBoundingClientRect().left;
+    };
+    for (const step of FIT) {
+      if (!clash()) break;
+      bar.classList.add(step);
+    }
+  }
+  addEventListener('resize', () => requestAnimationFrame(fitBar));
+  document.fonts?.ready.then(fitBar);
 
   // the bar holds every console on the shelf; a collection hides those it has no games on (sync)
   function shell() {
@@ -329,7 +355,7 @@
     $$('.fam').forEach(f => { f.hidden = !$$('.chip[data-c]', f).some(c => !c.hidden); });
     $$('#view [data-view]').forEach(b => { b.hidden = !VIEWS.includes(b.dataset.view); });
     $('#sort option[value="console"]').textContent = MENU.console.label;
-    $$('#sort option').forEach(o => { const m = MENU[o.value]; if (m?.col) o.hidden = m.col !== COL; });
+    $$('#sort option').forEach(o => { const m = MENU[o.value]; if (m?.col) o.hidden = m.col !== COL || !themed(); });
     $$('[data-n]').forEach(i => {
       const k = i.dataset.n, n = k === 'all' ? tally(b) : (counts[k] || 0);
       i.textContent = n + (n === 1 ? ' game' : ' games');
@@ -354,7 +380,7 @@
     $$('#lib button').forEach(x => x.classList.toggle('on', x.dataset.lib === state.lib));
     // the sort menu names the sort, or a line of its own for one set from a column
     const [choice] = Object.entries(MENU).find(([, m]) => m.key === state.sort.key && m.dir === state.sort.dir
-      && (!m.col || m.col === COL) && (!m.grouping || m.grouping === GROUPING?.key)) || [];
+      && (!m.col || (m.col === COL && themed())) && (!m.grouping || m.grouping === GROUPING?.key)) || [];
     const custom = $('#sort option[value="custom"]');
     custom.hidden = !!choice;
     custom.textContent = `Sorted by ${SORT_BY[state.sort.key].label} ${state.sort.dir === 'asc' ? '↑' : '↓'}`;
@@ -740,7 +766,7 @@
     cell.insertAdjacentHTML('beforeend', `<span class="cap"><b>${esc(g.title)}</b><small>${c.short}${g.platinum ? ' Platinum' : ''} · ${Case.year(g)} · ${esc(g.region)}${g.format !== 'boxed' ? ` · ${FORMATS[g.format]}` : ''}${Collection.caseName(g) ? ` · ${Collection.caseName(g)}` : ''}</small></span>`);
     return cell;
   }
-  const groupHead = (gr, n) => `<div class="ghead">${gr.art ? `<span class="spot-art">${gr.art}</span>` : ''}<b>${esc(gr.name)}</b><i>${n} ${n === 1 ? 'copy' : CFG ? 'copies' : 'games'}</i></div>`;
+  const groupHead = (gr, n) => `<div class="ghead">${gr.art ? `<span class="spot-art">${gr.art}</span>` : ''}<b>${esc(gr.name)}</b><i>${n} ${n === 1 ? 'copy' : themed() ? 'copies' : 'games'}</i></div>`;
 
   /* ---------- the grid: every game standing face out on one baseline ---------- */
   // A DVD case stands the full height of the stage and the rest keep their real size beside it,
@@ -1458,7 +1484,7 @@
     // what a collection says of it besides: for a Sims game on PC, the rest of its series' packs (js/sims.js);
     // and for any other game sold with packs, the game and its packs on the same console
     const related = g => Object.entries(COLLECTIONS).map(([k, c]) => {
-      const r = c.drawer && LISTS[k] && c.drawer(g, LISTS[k]);
+      const r = c.drawer && !c.plain && LISTS[k] && c.drawer(g, LISTS[k]);
       return r ? section(r.title, r.html) : '';
     }).join('') || seriesHtml(g) || packsHtml(g);
 
@@ -2166,22 +2192,23 @@
     root.classList.remove('collection', ...Object.keys(COLLECTIONS)); // and the one index.php dressed it as
     COL = COLLECTIONS[col] ? col : '';
     CFG = COLLECTIONS[COL] || null;
-    if (COL) root.classList.add('collection', COL);
+    if (themed()) root.classList.add('collection', COL);
     ALL = CFG ? LISTS[COL] : DB;
-    GROUP = CFG ? 'group' : 'console';
+    GROUP = themed() ? 'group' : 'console';
     MENU.console.key = GROUP;
     MENU.console.grouping = groupingsOf(COL)[0]?.key;
     pickGrouping(store.get(`grouping.${COL}`));
     VIEWS = viewsOf(COL);
     state.view = openingView(COL);
-    // sorted by console on the shelf is sorted by game in a collection, and back
-    const s = state.sort || {};
+    // sorted by console on the shelf is sorted by game in a collection, and back; with no sort remembered
+    // (a first visit straight to /mario), the one its top bar link opens on (openFresh)
+    const s = state.sort || (themed() && CFG.openSort !== 'group' ? MENU.newest : {});
     state.sort = validSort(s.key === 'console' || s.key === 'group' ? { key: GROUP, dir: s.dir } : s);
     // the consoles picked stay picked where the collection has games on them
     state.sel = new Set([...state.sel].filter(id => ALL.some(g => g.console === id)));
     if (state.lib && !ALL.some(g => g.console === 'pc' && inLib(g, state.lib))) state.lib = '';
-    document.title = CFG ? `${CFG.title} · ${SHELF.title}` : SHELF.title;
-    $('link[rel="icon"]')?.setAttribute('href', CFG ? CFG.icon : SHELF.icon);
+    document.title = CFG ? `${themed() ? CFG.title : CFG.name} · ${SHELF.title}` : SHELF.title;
+    $('link[rel="icon"]')?.setAttribute('href', themed() ? CFG.icon : SHELF.icon);
     $('meta[name="description"]')?.setAttribute('content', CFG ? CFG.about : SHELF.about);
     $$('.topnav [data-col]').forEach(a => a.dataset.col === COL ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current'));
     hero();
@@ -2412,7 +2439,7 @@
   function openFresh() {
     state.sel = new Set();
     state.view = defaultView(COL);
-    state.sort = validSort(CFG && CFG.openSort !== 'group' ? MENU.newest : MENU.console);
+    state.sort = validSort(themed() && CFG.openSort !== 'group' ? MENU.newest : MENU.console);
     store.set(viewKey(COL), state.view);
     store.set('sort', state.sort);
   }

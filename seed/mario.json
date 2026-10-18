@@ -1,0 +1,793 @@
+{
+  "updated": "2026-10-18",
+  "eras": [
+    {
+      "id": "mario-2d",
+      "name": "The 2D platformers",
+      "short": "2D",
+      "blurb": "Running right, from World 1-1 on the NES to Wonder, with the Game Boy Lands and the Makers.",
+      "games": [
+        {
+          "title": "Super Mario Bros.",
+          "released": "1985-09-13",
+          "copies": [
+            "snes-super-mario-all-stars",
+            "gbc-super-mario-bros-deluxe"
+          ],
+          "missing": [
+            "nes"
+          ],
+          "console": "nes"
+        },
+        {
+          "title": "Super Mario Bros.: The Lost Levels",
+          "released": "1986-06-03",
+          "copies": [
+            "snes-super-mario-all-stars"
+          ],
+          "missing": [],
+          "console": "nes",
+          "note": "Only ever on the Famicom Disk System in Japan, until All-Stars."
+        },
+        {
+          "title": "Super Mario Bros. 2",
+          "released": "1988-10-09",
+          "copies": [
+            "snes-super-mario-all-stars",
+            "gba-super-mario-advance"
+          ],
+          "missing": [
+            "nes"
+          ],
+          "console": "nes"
+        },
+        {
+          "title": "Super Mario Bros. 3",
+          "released": "1988-10-23",
+          "copies": [
+            "snes-super-mario-all-stars"
+          ],
+          "missing": [
+            "nes"
+          ],
+          "console": "nes"
+        },
+        {
+          "title": "Super Mario Land",
+          "released": "1989-04-21",
+          "copies": [],
+          "missing": [
+            "gb"
+          ],
+          "console": "gb"
+        },
+        {
+          "title": "Super Mario World",
+          "released": "1990-11-21",
+          "copies": [
+            "snes-super-mario-world"
+          ],
+          "missing": [],
+          "console": "snes"
+        },
+        {
+          "title": "Super Mario Land 2: 6 Golden Coins",
+          "released": "1992-10-21",
+          "copies": [
+            "gbc-super-mario-land-2-6-golden-coins"
+          ],
+          "missing": [],
+          "console": "gb"
+        },
+        {
+          "title": "New Super Mario Bros.",
+          "released": "2006-05-15",
+          "copies": [
+            "ds-new-super-mario-bros"
+          ],
+          "missing": [],
+          "console": "ds"
+        },
+        {
+          "title": "New Super Mario Bros. Wii",
+          "released": "2009-11-12",
+          "copies": [
+            "wii-new-super-mario-bros-wii"
+          ],
+          "missing": [],
+          "console": "wii"
+        },
+        {
+          "title": "New Super Mario Bros. 2",
+          "released": "2012-07-28",
+          "copies": [
+            "3ds-new-super-mario-bros-2",
+            "3ds-new-super-mario-bros-2-usa"
+          ],
+          "missing": [],
+          "console": "3ds"
+        },
+        {
+          "title": "New Super Mario Bros. U",
+          "released": "2012-11-18",
+          "copies": [
+            "wiiu-new-super-mario-bros-u",
+            "switch-new-super-mario-bros-u-deluxe"
+          ],
+          "missing": [],
+          "console": "wiiu"
+        },
+        {
+          "title": "Super Mario Maker",
+          "released": "2015-09-10",
+          "copies": [
+            "wiiu-super-mario-maker",
+            "3ds-super-mario-maker-for-nintendo-3ds"
+          ],
+          "missing": [],
+          "console": "wiiu"
+        },
+        {
+          "title": "Super Mario Maker 2",
+          "released": "2019-06-28",
+          "copies": [
+            "switch-super-mario-maker-2"
+          ],
+          "missing": [],
+          "console": "switch"
+        },
+        {
+          "title": "Super Mario Bros. Wonder",
+          "released": "2023-10-20",
+          "copies": [
+            "switch-super-mario-bros-wonder"
+          ],
+          "missing": [],
+          "console": "switch"
+        }
+      ]
+    },
+    {
+      "id": "mario-3d",
+      "name": "The 3D platformers",
+      "short": "3D",
+      "blurb": "From the castle grounds of Super Mario 64 to the kingdoms of Odyssey.",
+      "games": [
+        {
+          "title": "Super Mario 64",
+          "released": "1996-06-23",
+          "copies": [
+            "switch-super-mario-3d-all-stars"
+          ],
+          "missing": [
+            "n64"
+          ],
+          "console": "n64"
+        },
+        {
+          "title": "Super Mario Sunshine",
+          "released": "2002-07-19",
+          "copies": [
+            "switch-super-mario-3d-all-stars"
+          ],
+          "missing": [
+            "gc"
+          ],
+          "console": "gc"
+        },
+        {
+          "title": "Super Mario 64 DS",
+          "released": "2004-11-21",
+          "copies": [
+            "ds-super-mario-64-ds"
+          ],
+          "missing": [],
+          "console": "ds",
+          "remakes": "Super Mario 64"
+        },
+        {
+          "title": "Super Mario Galaxy",
+          "released": "2007-11-01",
+          "copies": [
+            "wii-super-mario-galaxy",
+            "switch-super-mario-3d-all-stars",
+            "switch-super-mario-galaxy-super-mario-galaxy-2"
+          ],
+          "missing": [],
+          "console": "wii"
+        },
+        {
+          "title": "Super Mario Galaxy 2",
+          "released": "2010-05-23",
+          "copies": [
+            "switch-super-mario-galaxy-super-mario-galaxy-2"
+          ],
+          "missing": [
+            "wii"
+          ],
+          "console": "wii"
+        },
+        {
+          "title": "Super Mario 3D Land",
+          "released": "2011-11-03",
+          "copies": [
+            "3ds-super-mario-3d-land",
+            "3ds-super-mario-3d-land-usa"
+          ],
+          "missing": [],
+          "console": "3ds"
+        },
+        {
+          "title": "Super Mario 3D World",
+          "released": "2013-11-21",
+          "copies": [
+            "wiiu-super-mario-3d-world",
+            "switch-super-mario-3d-world-bowsers-fury"
+          ],
+          "missing": [],
+          "console": "wiiu"
+        },
+        {
+          "title": "Super Mario Odyssey",
+          "released": "2017-10-27",
+          "copies": [
+            "switch-super-mario-odyssey"
+          ],
+          "missing": [],
+          "console": "switch"
+        },
+        {
+          "title": "Bowser's Fury",
+          "released": "2021-02-12",
+          "copies": [
+            "switch-super-mario-3d-world-bowsers-fury"
+          ],
+          "missing": [],
+          "console": "switch"
+        }
+      ]
+    },
+    {
+      "id": "mario-kart",
+      "name": "Mario Kart",
+      "short": "Kart",
+      "blurb": "Every Mario Kart for a console or a handheld, from the SNES to the open world of the Switch 2.",
+      "games": [
+        {
+          "title": "Super Mario Kart",
+          "released": "1992-08-27",
+          "copies": [
+            "snes-super-mario-kart",
+            "snes-super-mario-kart-aus"
+          ],
+          "missing": [],
+          "console": "snes"
+        },
+        {
+          "title": "Mario Kart 64",
+          "released": "1996-12-14",
+          "copies": [],
+          "missing": [
+            "n64"
+          ],
+          "console": "n64"
+        },
+        {
+          "title": "Mario Kart: Super Circuit",
+          "released": "2001-07-21",
+          "copies": [
+            "gba-mario-kart-super-circuit"
+          ],
+          "missing": [],
+          "console": "gba"
+        },
+        {
+          "title": "Mario Kart: Double Dash!!",
+          "released": "2003-11-07",
+          "copies": [],
+          "missing": [
+            "gc"
+          ],
+          "console": "gc"
+        },
+        {
+          "title": "Mario Kart DS",
+          "released": "2005-11-14",
+          "copies": [
+            "ds-mario-kart-ds"
+          ],
+          "missing": [],
+          "console": "ds"
+        },
+        {
+          "title": "Mario Kart Wii",
+          "released": "2008-04-10",
+          "copies": [
+            "wii-mario-kart-wii"
+          ],
+          "missing": [],
+          "console": "wii"
+        },
+        {
+          "title": "Mario Kart 7",
+          "released": "2011-12-01",
+          "copies": [
+            "3ds-mario-kart-7",
+            "3ds-mario-kart-7-usa"
+          ],
+          "missing": [],
+          "console": "3ds"
+        },
+        {
+          "title": "Mario Kart 8",
+          "released": "2014-05-29",
+          "copies": [
+            "wiiu-mario-kart-8",
+            "switch-mario-kart-8-deluxe"
+          ],
+          "missing": [],
+          "console": "wiiu"
+        },
+        {
+          "title": "Mario Kart Live: Home Circuit",
+          "released": "2020-10-16",
+          "copies": [
+            "switch-mario-kart-live-home-circuit"
+          ],
+          "missing": [],
+          "console": "switch",
+          "note": "Real karts with cameras, racing round the living room."
+        },
+        {
+          "title": "Mario Kart World",
+          "released": "2025-06-05",
+          "copies": [
+            "switch2-mario-kart-world"
+          ],
+          "missing": [],
+          "console": "switch2"
+        }
+      ]
+    },
+    {
+      "id": "mario-party",
+      "name": "Mario Party",
+      "short": "Party",
+      "blurb": "The numbered boards from the N64 on, then Super, Superstars and Jamboree.",
+      "games": [
+        {
+          "title": "Mario Party",
+          "released": "1998-12-18",
+          "copies": [],
+          "missing": [
+            "n64"
+          ],
+          "console": "n64"
+        },
+        {
+          "title": "Mario Party 2",
+          "released": "1999-12-17",
+          "copies": [],
+          "missing": [
+            "n64"
+          ],
+          "console": "n64"
+        },
+        {
+          "title": "Mario Party 3",
+          "released": "2000-12-07",
+          "copies": [],
+          "missing": [
+            "n64"
+          ],
+          "console": "n64"
+        },
+        {
+          "title": "Mario Party 4",
+          "released": "2002-10-21",
+          "copies": [],
+          "missing": [
+            "gc"
+          ],
+          "console": "gc"
+        },
+        {
+          "title": "Mario Party 5",
+          "released": "2003-11-10",
+          "copies": [],
+          "missing": [
+            "gc"
+          ],
+          "console": "gc"
+        },
+        {
+          "title": "Mario Party 6",
+          "released": "2004-11-18",
+          "copies": [],
+          "missing": [
+            "gc"
+          ],
+          "console": "gc"
+        },
+        {
+          "title": "Mario Party 7",
+          "released": "2005-11-07",
+          "copies": [],
+          "missing": [
+            "gc"
+          ],
+          "console": "gc"
+        },
+        {
+          "title": "Mario Party 8",
+          "released": "2007-05-29",
+          "copies": [],
+          "missing": [
+            "wii"
+          ],
+          "console": "wii"
+        },
+        {
+          "title": "Mario Party 9",
+          "released": "2012-03-02",
+          "copies": [],
+          "missing": [
+            "wii"
+          ],
+          "console": "wii"
+        },
+        {
+          "title": "Mario Party 10",
+          "released": "2015-03-12",
+          "copies": [],
+          "missing": [
+            "wiiu"
+          ],
+          "console": "wiiu"
+        },
+        {
+          "title": "Super Mario Party",
+          "released": "2018-10-05",
+          "copies": [
+            "switch-super-mario-party"
+          ],
+          "missing": [],
+          "console": "switch"
+        },
+        {
+          "title": "Mario Party Superstars",
+          "released": "2021-10-29",
+          "copies": [
+            "switch-mario-party-superstars"
+          ],
+          "missing": [],
+          "console": "switch"
+        },
+        {
+          "title": "Super Mario Party Jamboree",
+          "released": "2024-10-17",
+          "copies": [
+            "switch2-super-mario-party-jamboree-jamboree-tv"
+          ],
+          "missing": [],
+          "console": "switch",
+          "note": "On the shelf as the Nintendo Switch 2 Edition, with Jamboree TV."
+        }
+      ]
+    },
+    {
+      "id": "mario-rpg",
+      "name": "The RPGs",
+      "short": "RPG",
+      "blurb": "Super Mario RPG, Paper Mario, and Mario & Luigi.",
+      "games": [
+        {
+          "title": "Super Mario RPG: Legend of the Seven Stars",
+          "released": "1996-03-09",
+          "copies": [],
+          "missing": [
+            "snes"
+          ],
+          "console": "snes"
+        },
+        {
+          "title": "Paper Mario",
+          "released": "2000-08-11",
+          "copies": [],
+          "missing": [
+            "n64"
+          ],
+          "console": "n64"
+        },
+        {
+          "title": "Mario & Luigi: Superstar Saga",
+          "released": "2003-11-17",
+          "copies": [],
+          "missing": [
+            "gba"
+          ],
+          "console": "gba"
+        },
+        {
+          "title": "Paper Mario: The Thousand-Year Door",
+          "released": "2004-07-22",
+          "copies": [],
+          "missing": [
+            "gc"
+          ],
+          "console": "gc"
+        },
+        {
+          "title": "Mario & Luigi: Partners in Time",
+          "released": "2005-11-28",
+          "copies": [],
+          "missing": [
+            "ds"
+          ],
+          "console": "ds"
+        },
+        {
+          "title": "Super Paper Mario",
+          "released": "2007-04-09",
+          "copies": [],
+          "missing": [
+            "wii"
+          ],
+          "console": "wii"
+        },
+        {
+          "title": "Mario & Luigi: Bowser's Inside Story",
+          "released": "2009-02-11",
+          "copies": [],
+          "missing": [
+            "ds"
+          ],
+          "console": "ds"
+        },
+        {
+          "title": "Paper Mario: Sticker Star",
+          "released": "2012-11-11",
+          "copies": [],
+          "missing": [
+            "3ds"
+          ],
+          "console": "3ds"
+        },
+        {
+          "title": "Mario & Luigi: Dream Team",
+          "released": "2013-07-18",
+          "copies": [],
+          "missing": [
+            "3ds"
+          ],
+          "console": "3ds"
+        },
+        {
+          "title": "Mario & Luigi: Paper Jam",
+          "released": "2015-12-03",
+          "copies": [],
+          "missing": [
+            "3ds"
+          ],
+          "console": "3ds"
+        },
+        {
+          "title": "Paper Mario: Color Splash",
+          "released": "2016-10-07",
+          "copies": [],
+          "missing": [
+            "wiiu"
+          ],
+          "console": "wiiu"
+        },
+        {
+          "title": "Mario & Luigi: Superstar Saga + Bowser's Minions",
+          "released": "2017-10-05",
+          "copies": [],
+          "missing": [
+            "3ds"
+          ],
+          "console": "3ds",
+          "remakes": "Superstar Saga"
+        },
+        {
+          "title": "Mario & Luigi: Bowser's Inside Story + Bowser Jr.'s Journey",
+          "released": "2018-12-27",
+          "copies": [],
+          "missing": [
+            "3ds"
+          ],
+          "console": "3ds",
+          "remakes": "Bowser's Inside Story"
+        },
+        {
+          "title": "Paper Mario: The Origami King",
+          "released": "2020-07-17",
+          "copies": [],
+          "missing": [
+            "switch"
+          ],
+          "console": "switch"
+        },
+        {
+          "title": "Super Mario RPG",
+          "released": "2023-11-17",
+          "copies": [
+            "switch-super-mario-rpg"
+          ],
+          "missing": [],
+          "console": "switch",
+          "remakes": "Legend of the Seven Stars"
+        },
+        {
+          "title": "Paper Mario: The Thousand-Year Door",
+          "released": "2024-05-23",
+          "copies": [],
+          "missing": [
+            "switch"
+          ],
+          "console": "switch",
+          "remakes": "the GameCube original"
+        },
+        {
+          "title": "Mario & Luigi: Brothership",
+          "released": "2024-11-07",
+          "copies": [],
+          "missing": [
+            "switch"
+          ],
+          "console": "switch"
+        }
+      ]
+    },
+    {
+      "id": "mario-luigi",
+      "name": "Luigi's Mansion",
+      "short": "Luigi",
+      "blurb": "Luigi on his own, with a torch and a vacuum cleaner.",
+      "games": [
+        {
+          "title": "Luigi's Mansion",
+          "released": "2001-09-14",
+          "copies": [],
+          "missing": [
+            "gc"
+          ],
+          "console": "gc"
+        },
+        {
+          "title": "Luigi's Mansion: Dark Moon",
+          "released": "2013-03-20",
+          "copies": [
+            "3ds-luigis-mansion-2"
+          ],
+          "missing": [],
+          "console": "3ds",
+          "note": "Luigi's Mansion 2 in Europe and Australia."
+        },
+        {
+          "title": "Luigi's Mansion",
+          "released": "2018-10-12",
+          "copies": [],
+          "missing": [
+            "3ds"
+          ],
+          "console": "3ds",
+          "remakes": "the GameCube original"
+        },
+        {
+          "title": "Luigi's Mansion 3",
+          "released": "2019-10-31",
+          "copies": [],
+          "missing": [
+            "switch"
+          ],
+          "console": "switch"
+        }
+      ]
+    },
+    {
+      "id": "mario-dk",
+      "name": "Donkey Kong",
+      "short": "DK",
+      "blurb": "The Country games, Donkey Kong 64 and Bananza.",
+      "games": [
+        {
+          "title": "Donkey Kong Country",
+          "released": "1994-11-21",
+          "copies": [
+            "snes-donkey-kong-country",
+            "gbc-donkey-kong-country",
+            "gba-donkey-kong-country"
+          ],
+          "missing": [],
+          "console": "snes"
+        },
+        {
+          "title": "Donkey Kong Country 2: Diddy's Kong Quest",
+          "released": "1995-11-20",
+          "copies": [
+            "snes-donkey-kong-country-2-diddys-kong-quest"
+          ],
+          "missing": [],
+          "console": "snes"
+        },
+        {
+          "title": "Donkey Kong Country 3: Dixie Kong's Double Trouble!",
+          "released": "1996-11-22",
+          "copies": [
+            "snes-donkey-kong-country-3-dixie-kongs-double-trouble"
+          ],
+          "missing": [],
+          "console": "snes"
+        },
+        {
+          "title": "Donkey Kong 64",
+          "released": "1999-11-22",
+          "copies": [],
+          "missing": [
+            "n64"
+          ],
+          "console": "n64"
+        },
+        {
+          "title": "Donkey Kong Country Returns",
+          "released": "2010-11-21",
+          "copies": [
+            "wii-donkey-kong-country-returns",
+            "3ds-donkey-kong-country-returns-3d",
+            "switch-donkey-kong-country-returns-hd"
+          ],
+          "missing": [],
+          "console": "wii"
+        },
+        {
+          "title": "Donkey Kong Country: Tropical Freeze",
+          "released": "2014-02-13",
+          "copies": [
+            "wiiu-donkey-kong-country-tropical-freeze",
+            "switch-donkey-kong-country-tropical-freeze"
+          ],
+          "missing": [],
+          "console": "wiiu"
+        },
+        {
+          "title": "Donkey Kong Bananza",
+          "released": "2025-07-17",
+          "copies": [
+            "switch2-donkey-kong-bananza"
+          ],
+          "missing": [],
+          "console": "switch2"
+        }
+      ]
+    },
+    {
+      "id": "mario-spinoffs",
+      "name": "Spin-offs",
+      "short": "Spin-offs",
+      "spinoff": true,
+      "blurb": "The rest of the Mushroom Kingdom on the shelf.",
+      "games": [
+        {
+          "title": "Mario + Rabbids Kingdom Battle",
+          "released": "2017-08-29",
+          "copies": [
+            "switch-mario-rabbids-kingdom-battle"
+          ],
+          "missing": [],
+          "console": "switch"
+        },
+        {
+          "title": "Mario + Rabbids Sparks of Hope",
+          "released": "2022-10-20",
+          "copies": [
+            "switch-mario-rabbids-sparks-of-hope"
+          ],
+          "missing": [],
+          "console": "switch"
+        }
+      ]
+    }
+  ]
+}

@@ -30,6 +30,15 @@ const PAGE_DEFAULTS = [
         'accent'      => 'Collection',
         'intro'       => 'Every Pokémon game I have, from Red and Green in 1996 to Legends: Z-A. A dashed outline is a version still to catch.',
     ],
+    'mario' => [
+        'nav'         => 'Super Mario',
+        'title'       => 'The Super Mario Collection',
+        'description' => "Bruno's Super Mario collection: the platformers, Mario Kart, Mario Party, the RPGs, Luigi and Donkey Kong, and the ones still to find.",
+        'eyebrow'     => "Let's-a go!",
+        'heading'     => 'Super Mario',
+        'accent'      => 'Collection',
+        'intro'       => 'Every Mario game I have, from Super Mario Bros. in 1985 to Mario Kart World, series by series. A dashed outline is a game still to find, on the console it came out on.',
+    ],
     'sims' => [
         'nav'         => 'The Sims',
         'title'       => 'The Sims Collection',
@@ -50,7 +59,7 @@ const PAGE_DEFAULTS = [
     ],
 ];
 
-const PAGE_NAMES = ['shelf' => 'All games', 'pokemon' => 'Pokémon', 'sims' => 'The Sims', 'gta' => 'GTA'];
+const PAGE_NAMES = ['shelf' => 'All games', 'pokemon' => 'Pokémon', 'mario' => 'Super Mario', 'sims' => 'The Sims', 'gta' => 'GTA'];
 
 const FRIEND_DEFAULTS = [
     'psn'      => ['label' => 'PSN', 'long' => 'Add me on PSN', 'aria' => 'Add me on PlayStation', 'url' => 'https://psnprofiles.com/bvidasi', 'show' => true],
@@ -64,6 +73,22 @@ const FRIEND_DEFAULTS = [
 
 const FRIEND_NAMES = ['psn' => 'PlayStation', 'nintendo' => 'Nintendo', 'xbox' => 'Xbox', 'steam' => 'Steam', 'ea' => 'EA app'];
 
+/**
+ * The collections turned off in Settings (pages_hidden). For visitors one leaves the top bar, and its address opens
+ * a plain filter on the shelf, not a page not found: its games
+ * only, in the shelf's own look (js/app.js, SITE.plain), without its look, header or checklist. The signed-in owner
+ * still sees the whole page, to work on it before it goes back up. The shelf is always on.
+ */
+function hidden_pages(): array
+{
+    return array_values(array_intersect((array) setting('pages_hidden', []), array_diff(array_keys(PAGE_NAMES), ['shelf'])));
+}
+
+function page_shown(string $page): bool
+{
+    return !in_array($page, hidden_pages(), true) || signed_in();
+}
+
 function site_settings(): array
 {
     return array_merge(SITE_DEFAULTS, (array) setting('site', []));
@@ -71,7 +96,7 @@ function site_settings(): array
 
 /**
  * The views turned on, and the one each page opens on, on a computer and on a phone
- * (defaults[page][desktop|mobile]). The Sims, GTA and Pokémon can open on their Checklist too.
+ * (defaults[page][desktop|mobile]). The Sims, GTA, Pokémon and Super Mario can open on their Checklist too.
  * Unset, the shelf opens on its bookcase on a computer (or the one view the site had
  * before there was one for each) and in rows on a phone; a collection in its grid.
  */
@@ -85,6 +110,7 @@ function views_settings(): array
     $fallback = [
         'shelf' => ['desktop' => $saved['default'] ?? 'shelf', 'mobile' => 'rows'],
         'pokemon' => ['desktop' => 'grid', 'mobile' => 'grid'],
+        'mario' => ['desktop' => 'grid', 'mobile' => 'grid'],
         'sims'  => ['desktop' => 'grid', 'mobile' => 'grid'],
         'gta'   => ['desktop' => 'grid', 'mobile' => 'grid'],
     ];
@@ -141,6 +167,7 @@ function site_script_config(): array
         'api'         => url('api/'),
         'base'        => url(''),
         'admin'       => $admin, // the owner's own links: "Look for it" on what's still to find, a game's marks in its drawer
+        'plain'       => $admin ? [] : hidden_pages(), // the collections turned off: plain filters on the shelf
         'csrf'        => $admin ? csrf_token() : null,
     ];
 }
@@ -196,7 +223,7 @@ function data_updated(): string
     return $changed ? substr($changed, 0, 10) : (string) setting('seed_updated', date('Y-m-d'));
 }
 
-/* ---------- the Sims want list and the GTA and Pokémon checklists ---------- */
+/* ---------- the Sims want list and the GTA, Pokémon and Super Mario checklists ---------- */
 
 function wants_json(string $collection = 'sims'): array
 {
@@ -270,6 +297,11 @@ function pokemon_json(): array
     return checklist_json('pokemon');
 }
 
+function mario_json(): array
+{
+    return checklist_json('mario');
+}
+
 /** Puts a checklist (the shape checklist_json() hands out) in place of what the collection had. */
 function load_checklist(string $collection, array $data): int
 {
@@ -338,6 +370,33 @@ function seed_pokemon(): void
         }
         $db->exec("INSERT INTO settings (key, value) VALUES ('seeded_pokemon', 'true') ON CONFLICT(key) DO NOTHING");
     });
+    touch_data();
+}
+
+/**
+ * Once, on a database that has the Mario games (cron/import_json.php brings them to a new one):
+ * the checklist from seed/mario.json.
+ */
+function seed_mario(): void
+{
+    if (!game_exists('snes-super-mario-world')) {
+        return; // a database without them: nothing to do, and import_json.php loads the checklist
+    }
+    $has = db()->prepare('SELECT 1 FROM gta_eras WHERE collection = ? LIMIT 1');
+    $has->execute(['mario']);
+    if (!$has->fetchColumn()) {
+        $file = __DIR__ . '/../seed/mario.json';
+        $data = is_file($file) ? json_decode((string) file_get_contents($file), true) : null;
+        if (!is_array($data)) {
+            return; // not done until the checklist is in: tried again next time
+        }
+        load_checklist('mario', $data);
+    }
+    // Super Mario Land 2, a Game Boy game, stands with the Game Boy Color's (as Pokémon Blue does)
+    if (($g = find_game('gbc-super-mario-land-2-6-golden-coins')) && empty($g['madeFor'])) {
+        update_game(['madeFor' => 'gb'] + $g);
+    }
+    db()->exec("INSERT INTO settings (key, value) VALUES ('seeded_mario', 'true') ON CONFLICT(key) DO NOTHING");
     touch_data();
 }
 

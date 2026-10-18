@@ -1,7 +1,7 @@
 <?php
 
 /**
- * The shelf: every page of the site (/sims, /gta and /pokemon are the same page in other
+ * The shelf: every page of the site (/sims, /gta, /pokemon and /mario are the same page in other
  * clothes, and /wiiu, /ps2-final-fantasy-x, /sims/wiiu are it with a console
  * picked or a game open, js/app.js). The texts, the views and the "Add me" links
  * come from Settings; the games from the API (api/games and the platforms beside it).
@@ -29,10 +29,15 @@ $config = site_script_config(); // before any output: it may open the session
 // until js/app.js has the games
 $col = explode('/', $route)[0];
 $col = isset(PAGE_NAMES[$col]) && $col !== 'shelf' ? $col : '';
-$title = $col !== '' ? $pages[$col]['title'] . ' · ' . $shelf['title'] : $shelf['title'];
+// a collection turned off in Settings is, for visitors, a plain filter on the shelf: dressed as the shelf
+$themed = $col !== '' && page_shown($col);
+$title = $col !== '' ? ($themed ? $pages[$col]['title'] : $pages[$col]['nav']) . ' · ' . $shelf['title'] : $shelf['title'];
 $about = $col !== '' ? $pages[$col]['description'] : $shelf['description'];
-$icon = $col !== '' ? "favicon-$col.svg" : 'favicon.svg';
+$icon = $themed ? "favicon-$col.svg" : 'favicon.svg';
 $current = fn (string $c) => $c === $col ? ' aria-current="page"' : '';
+// a collection turned off in Settings is left out of the top bar for visitors (its address still opens, as a plain
+// filter on the shelf); the signed-in owner still has its link, marked, and its whole page
+$off = fn (string $c) => signed_in() && in_array($c, hidden_pages(), true) ? ' data-hidden title="A plain filter for visitors (Settings)"' : '';
 
 // the name in the top bar, its last words in the accent colour
 $name = (string) $site['name'];
@@ -44,7 +49,7 @@ $brand = $accent !== '' && str_ends_with($name, $accent)
 header('Content-Type: text/html; charset=utf-8');
 ?>
 <!DOCTYPE html>
-<html lang="en"<?= $col !== '' ? ' class="collection ' . e($col) . '"' : '' ?>>
+<html lang="en"<?= $themed ? ' class="collection ' . e($col) . '"' : '' ?>>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -59,6 +64,7 @@ header('Content-Type: text/html; charset=utf-8');
 <link rel="stylesheet" href="<?= e(asset_url('css/sims.css')) ?>">
 <link rel="stylesheet" href="<?= e(asset_url('css/gta.css')) ?>">
 <link rel="stylesheet" href="<?= e(asset_url('css/pokemon.css')) ?>">
+<link rel="stylesheet" href="<?= e(asset_url('css/mario.css')) ?>">
 </head>
 <body>
 
@@ -71,9 +77,18 @@ header('Content-Type: text/html; charset=utf-8');
   <div class="topmenu" id="topmenu">
   <nav class="topnav" aria-label="Collections">
     <a href="<?= e(url('')) ?>" data-col=""<?= $current('') ?>><?= e($pages['shelf']['nav']) ?></a>
-    <a href="<?= e(url('pokemon')) ?>" data-col="pokemon"<?= $current('pokemon') ?>><img class="nav-ball" src="<?= e(url('assets/pokeball.svg')) ?>" alt="" width="13" height="13"><?= e($pages['pokemon']['nav']) ?></a>
-    <a href="<?= e(url('sims')) ?>" data-col="sims"<?= $current('sims') ?>><img class="nav-bob" src="<?= e(url('assets/plumbob.svg')) ?>" alt="" width="8" height="16"><?= e($pages['sims']['nav']) ?></a>
-    <a href="<?= e(url('gta')) ?>" data-col="gta"<?= $current('gta') ?>><?= e($pages['gta']['nav']) ?></a>
+<?php if (page_shown('pokemon')): ?>
+    <a href="<?= e(url('pokemon')) ?>" data-col="pokemon"<?= $current('pokemon') ?><?= $off('pokemon') ?>><img class="nav-ball" src="<?= e(url('assets/pokeball.svg')) ?>" alt="" width="13" height="13"><?= e($pages['pokemon']['nav']) ?></a>
+<?php endif; ?>
+<?php if (page_shown('mario')): ?>
+    <a href="<?= e(url('mario')) ?>" data-col="mario"<?= $current('mario') ?><?= $off('mario') ?>><img class="nav-block" src="<?= e(url('assets/qblock.svg')) ?>" alt="" width="13" height="13"><?= e($pages['mario']['nav']) ?></a>
+<?php endif; ?>
+<?php if (page_shown('sims')): ?>
+    <a href="<?= e(url('sims')) ?>" data-col="sims"<?= $current('sims') ?><?= $off('sims') ?>><img class="nav-bob" src="<?= e(url('assets/plumbob.svg')) ?>" alt="" width="8" height="16"><?= e($pages['sims']['nav']) ?></a>
+<?php endif; ?>
+<?php if (page_shown('gta')): ?>
+    <a href="<?= e(url('gta')) ?>" data-col="gta"<?= $current('gta') ?><?= $off('gta') ?>><?= e($pages['gta']['nav']) ?></a>
+<?php endif; ?>
   </nav>
 <?php if ($friends): ?>
   <nav class="addme" aria-label="Add me">
@@ -129,7 +144,7 @@ header('Content-Type: text/html; charset=utf-8');
   bar.querySelectorAll('.topnav a').forEach(a => a.addEventListener('click', () => setMenu(false)));
   document.addEventListener('click', e => { if (!bar.contains(e.target)) setMenu(false); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && bar.classList.contains('menu-open')) { setMenu(false); toggle.focus(); } });
-  matchMedia('(max-width: 820px)').addEventListener('change', () => setMenu(false));
+  matchMedia('(max-width: 960px)').addEventListener('change', () => setMenu(false));
 })();
 // an "Add me" with no link (the EA app) copies the ID to search for, and says so for a moment: on its own label,
 // or in the phone menu's row of tiles (too narrow for it) over them, in place of "Add me on"
@@ -148,6 +163,7 @@ document.querySelectorAll('.addme [data-copy]').forEach(b => b.addEventListener(
 <script src="<?= e(asset_url('js/sims.js')) ?>"></script>
 <script src="<?= e(asset_url('js/gta.js')) ?>"></script>
 <script src="<?= e(asset_url('js/pokemon.js')) ?>"></script>
+<script src="<?= e(asset_url('js/mario.js')) ?>"></script>
 <script src="<?= e(asset_url('js/dropdown.js')) ?>"></script>
 <script src="<?= e(asset_url('js/app.js')) ?>"></script>
 <?php if ($config['admin']): ?><script src="<?= e(asset_url('js/barcode.js')) ?>"></script><?php endif; ?>

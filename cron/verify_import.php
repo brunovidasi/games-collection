@@ -31,6 +31,7 @@ $checks = [
     'sims-wants.json' => fn () => wants_json('sims'),
     'gta.json'        => fn () => gta_json(),
     'pokemon.json'    => fn () => pokemon_json(),
+    'mario.json'      => fn () => mario_json(),
 ];
 
 $failed = 0;

@@ -75,6 +75,11 @@ function run_migrations(PDO $db): void
     if (function_exists('seed_pokemon') && !$db->query("SELECT 1 FROM settings WHERE key = 'seeded_pokemon'")->fetch()) {
         seed_pokemon();
     }
+
+    // Once: the Super Mario collection's checklist from seed/mario.json (includes/site.php)
+    if (function_exists('seed_mario') && !$db->query("SELECT 1 FROM settings WHERE key = 'seeded_mario'")->fetch()) {
+        seed_mario();
+    }
 }
 
 /** A settings row, JSON-decoded and cached for the rest of the request. */

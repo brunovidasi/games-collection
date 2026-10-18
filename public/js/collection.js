@@ -35,8 +35,11 @@
     const tile = document.createElement('span');
     tile.className = 'gt';
     const s = stageH() / 190;
-    if (g.format === 'cartridge-only') tile.append(Case.cart(g, s * 2));
-    else {
+    if (g.format === 'cartridge-only') {
+      tile.append(Case.cart(g, s * 2));
+      // a wide cartridge (the SNES's) keeps its real size, and its place on the shelf widens to hold it
+      a.style.minWidth = `${Math.ceil(Case.cartSize(g, s * 2)[0])}px`;
+    } else {
       // a box built from its parts (g.model) stands as that model, not a picture of its front
       const k = Math.min(s, (stageH() * 0.95) / Case.layout(g, 1).w);
       const face = g.model ? Case.slab(g, k, true) : Case.front(g, k);

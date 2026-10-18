@@ -274,7 +274,7 @@ CREATE TABLE IF NOT EXISTS wantlist (
 -- The collections' checklists (named for GTA's, the first): the series era by
 -- era, each game with the copies on the shelf (game ids) and the platforms
 -- still to find. `collection` is whose: 'gta', 'pokemon' (generation by
--- generation, a game for each version).
+-- generation, a game for each version), 'mario' (series by series).
 CREATE TABLE IF NOT EXISTS gta_eras (
     id              TEXT PRIMARY KEY,
     collection      TEXT NOT NULL DEFAULT 'gta',

@@ -124,6 +124,8 @@ if (is_post()) {
                 }
             }
             set_setting('pages', $pages);
+            // a collection left unticked is off the site (hidden_pages); the shelf is always on
+            set_setting('pages_hidden', array_values(array_filter(array_keys(PAGE_DEFAULTS), fn ($page) => $page !== 'shelf' && empty($_POST['shown'][$page]))));
             touch_data();
             flash('The site\'s name and pages were saved.');
             break;
@@ -303,7 +305,11 @@ foreach ($errors as $error) {
 
     <?php foreach (PAGE_DEFAULTS as $page => $defaults): $p = $pages[$page]; ?>
       <section class="card">
-        <h2><?= e(PAGE_NAMES[$page]) ?> <span class="muted small"><?= $page === 'shelf' ? url('') : url($page) ?></span></h2>
+        <h2><?= e(PAGE_NAMES[$page]) ?> <span class="muted small"><?= $page === 'shelf' ? url('') : url($page) ?></span><?php if (in_array($page, hidden_pages(), true)): ?> <span class="muted small">· hidden</span><?php endif; ?></h2>
+        <?php if ($page !== 'shelf'): ?>
+          <p><?= check_box("shown[$page]", !in_array($page, hidden_pages(), true), 'Show on the site') ?></p>
+          <p class="muted small">Unticked, it leaves the top bar for visitors; anyone opening its address gets a plain filter on the shelf instead of a page not found: only its games, in the shelf's usual look, without its own look, header or checklist. Signed in, you still see the whole page (its link outlined), to work on it before it goes back up.</p>
+        <?php endif; ?>
         <div class="fields">
           <div class="field"><label>In the menu</label><input type="text" name="pages[<?= $page ?>][nav]" value="<?= e($p['nav']) ?>" placeholder="<?= e($defaults['nav']) ?>"></div>
           <div class="field"><label>Title</label><input type="text" name="pages[<?= $page ?>][title]" value="<?= e($p['title']) ?>" placeholder="<?= e($defaults['title']) ?>"><div class="hint">The browser tab's title<?= $page === 'shelf' ? '' : ', before the site\'s' ?>, and what search engines show.</div></div>
@@ -327,7 +333,7 @@ foreach ($errors as $error) {
     <input type="hidden" name="tab" value="views">
     <section class="card">
       <h2>The views the site offers</h2>
-      <p class="muted small">The buttons beside the search. The Sims and GTA pages add their Checklist to these.</p>
+      <p class="muted small">The buttons beside the search. The collections (The Sims, GTA, Pokémon, Super Mario) add their Checklist to these.</p>
       <div class="view-picks">
         <?php foreach (VIEWS as $key => $label): ?>
           <div class="view-pick">

@@ -33,6 +33,10 @@ window.CONSOLES = [
   { id: 'gbc',     name: 'Game Boy Color',    short: 'GBC',      fam: 'nintendo',    w: 118, h: 124, d: 30, kind: 'box',   media: 'gbc',     spineArt: true,  stack: true },
   { id: 'snes',    name: 'Super Nintendo',    short: 'SNES',     fam: 'nintendo',    w: 180, h: 128, d: 38, kind: 'box',   media: 'snes',    spineArt: true,  stack: true },
   { id: 'gb',      name: 'Game Boy',          short: 'GB',       fam: 'nintendo',    w: 118, h: 124, d: 30, kind: 'box',   media: 'gb',      spineArt: true,  hidden: true },
+  // no copies yet: the case sizes of games still to find (the Super Mario checklist, js/mario.js)
+  { id: 'gc',      name: 'GameCube',          short: 'GC',       fam: 'nintendo',    w: 136, h: 190, d: 14, kind: 'keep',  media: 'gc',      spineArt: false, hidden: true },
+  { id: 'n64',     name: 'Nintendo 64',       short: 'N64',      fam: 'nintendo',    w: 185, h: 130, d: 38, kind: 'box',   media: 'n64',     spineArt: true,  hidden: true },
+  { id: 'nes',     name: 'NES',               short: 'NES',      fam: 'nintendo',    w: 127, h: 184, d: 38, kind: 'box',   media: 'nes',     spineArt: true,  hidden: true },
   { id: 'pc',      name: 'PC',                short: 'PC',       fam: 'pc',          w: 135, h: 190, d: 14, kind: 'keep',  media: 'dvd',     spineArt: true },
   { id: 'xone',    name: 'Xbox One',          short: 'One',      fam: 'xbox',        w: 135, h: 171, d: 12, kind: 'keep',  media: 'bd',      spineArt: true },
   { id: 'x360',    name: 'Xbox 360',          short: '360',      fam: 'xbox',        w: 135, h: 190, d: 14, kind: 'keep',  media: 'dvd',     spineArt: true },

@@ -9,7 +9,7 @@
  *
  * games.json becomes the games table; steam.json, psn.json, nintendo.json,
  * xbox.json, ea.json and rockstar.json the platform records; sims-wants.json
- * the want list, and gta.json and pokemon.json the GTA and Pokémon checklists. Nothing else is touched: the
+ * the want list, and gta.json, pokemon.json and mario.json the GTA, Pokémon and Super Mario checklists. Nothing else is touched: the
  * account, the settings and the saved sign-ins stay. cron/verify_import.php
  * then checks the API hands back what the files said.
  */
@@ -99,8 +99,8 @@ db_transaction(function (PDO $db) use ($games, $read) {
         echo count($wants['wants']) . " on the Sims want list\n";
     }
 
-    // the GTA and Pokémon checklists
-    foreach (['gta' => 'gta.json', 'pokemon' => 'pokemon.json'] as $collection => $name) {
+    // the GTA, Pokémon and Super Mario checklists
+    foreach (['gta' => 'gta.json', 'pokemon' => 'pokemon.json', 'mario' => 'mario.json'] as $collection => $name) {
         if ($data = $read($name)) {
             $n = load_checklist($collection, $data);
             echo count($data['eras']) . " $collection eras, $n games\n";
