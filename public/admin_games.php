@@ -118,8 +118,18 @@ admin_header('Collection', count($all) . ' copies in the database. Pick one to c
   <?php if ($filtering): ?><a class="clear" href="<?= e(url('admin/games')) ?>">Clear</a><?php endif; ?>
 </form>
 
-<?php $siteCount = collection_figures($games)['games']; ?>
-<div class="count-line" id="gameColumns"><span><?= count($games) ?> of <?= count($all) ?> <?= plural(count($all), 'copy', 'copies') ?><?php if ($siteCount !== count($games)): ?> · <span title="As the site and the dashboard count them: hidden copies left out, a bundle counted as the packs in it"><?= $siteCount ?> <?= plural($siteCount, 'game') ?> as the site counts them</span><?php endif; ?></span></div>
+<?php
+$siteCount = collection_figures($games)['games'];
+// what the copies listed cost, all told, in each currency paid in
+$paid = [];
+foreach ($games as $g) {
+    if (isset($g['price']) && is_numeric($g['price'])) {
+        $paid[$g['priceCurrency'] ?? '?'] = ($paid[$g['priceCurrency'] ?? '?'] ?? 0) + (float) $g['price'];
+    }
+}
+arsort($paid);
+?>
+<div class="count-line" id="gameColumns"><span><?= count($games) ?> of <?= count($all) ?> <?= plural(count($all), 'copy', 'copies') ?><?php if ($siteCount !== count($games)): ?> · <span title="As the site and the dashboard count them: hidden copies left out, a bundle counted as the packs in it"><?= $siteCount ?> <?= plural($siteCount, 'game') ?> as the site counts them</span><?php endif; ?><?php if ($paid): ?> · <span title="What the copies listed with a price cost, all told">Paid <?= e(implode(' + ', array_map(fn ($c, $n) => "$c " . number_format($n, 2), array_keys($paid), $paid))) ?></span><?php endif; ?></span></div>
 
 <?php if ($games): ?>
 <form method="post" action="<?= e(url('admin/flags')) ?>" id="flagForm" data-flags>
@@ -152,7 +162,7 @@ admin_header('Collection', count($all) . ' copies in the database. Pick one to c
     <table class="table games" data-sort="games" data-columns="gameColumns">
       <thead>
         <tr>
-          <th class="c-pick"><input type="checkbox" data-pick-all aria-label="Tick every copy listed"></th><th></th><th>Title</th><th data-col="console">Console</th><th data-col="copy">Copy</th><th data-col="region">Region</th>
+          <th class="c-pick"><input type="checkbox" data-pick-all aria-label="Tick every copy listed"></th><th></th><th>Title</th><th data-col="console">Console</th><th data-col="copy">Copy</th><th data-col="region">Region</th><th data-col="price" data-first="desc">Paid</th>
           <th data-col="released" data-first="desc">Released</th><th data-col="publisher" data-off>Publisher</th><th data-col="developer" data-off>Developer</th>
           <th data-col="genre" data-off>Genre</th><th data-col="series" data-off>Series</th><th data-col="playtime" data-first="desc">Play time</th>
           <th data-col="progress" data-first="desc">Achievements</th><th data-col="lastplayed" data-first="desc">Last played</th>
@@ -174,6 +184,7 @@ admin_header('Collection', count($all) . ' copies in the database. Pick one to c
           <td data-sort="<?= $order[$g['console']] ?? 99 ?>" title="<?= e(console_name($g['console'])) ?>"><?= e(console_short($g['console'])) ?></td>
           <td><?= e(FORMATS[$g['format'] ?? ''] ?? ($g['format'] ?? '—')) ?><?php if (!empty($g['launcher'])): ?><div class="muted small"><?= e(LAUNCHERS[$g['launcher']] ?? $g['launcher']) ?></div><?php endif; ?></td>
           <td data-sort="<?= e($g['region'] ?? '') ?>"><?= e($g['region'] ?? '—') ?></td>
+          <td data-sort="<?= e($g['price'] ?? '') ?>" class="c-num"><?= isset($g['price']) ? e(trim(($g['priceCurrency'] ?? '') . ' ' . $g['price'])) : '—' ?></td>
           <td data-sort="<?= e($g['released'] ?? '') ?>" class="c-num"><?= e($g['released'] ?? '—') ?></td>
           <td data-sort="<?= e($g['publisher'] ?? '') ?>" class="c-text"><?= e($g['publisher'] ?? '—') ?></td>
           <td data-sort="<?= e($g['developer'] ?? '') ?>" class="c-text"><?= e($g['developer'] ?? '—') ?></td>

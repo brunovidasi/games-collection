@@ -9,7 +9,7 @@
  *
  * games.json becomes the games table; steam.json, psn.json, nintendo.json,
  * xbox.json, ea.json and rockstar.json the platform records; sims-wants.json
- * the want list and gta.json the GTA checklist. Nothing else is touched: the
+ * the want list, and gta.json and pokemon.json the GTA and Pokémon checklists. Nothing else is touched: the
  * account, the settings and the saved sign-ins stay. cron/verify_import.php
  * then checks the API hands back what the files said.
  */
@@ -46,7 +46,7 @@ if ($games === null) {
 
 $existing = (int) db()->query('SELECT COUNT(*) FROM games')->fetchColumn();
 if ($existing && !$force) {
-    fwrite(STDERR, "The database already has $existing games. Run again with --force to replace them (and the platform records, want list and GTA checklist).\n");
+    fwrite(STDERR, "The database already has $existing games. Run again with --force to replace them (and the platform records, want list and checklists).\n");
     exit(1);
 }
 
@@ -99,22 +99,12 @@ db_transaction(function (PDO $db) use ($games, $read) {
         echo count($wants['wants']) . " on the Sims want list\n";
     }
 
-    // the GTA checklist
-    if ($gta = $read('gta.json')) {
-        $era = $db->prepare('INSERT INTO gta_eras (id, position, name, blurb, extra_json) VALUES (?, ?, ?, ?, ?)');
-        $game = $db->prepare('INSERT INTO gta_games (era_id, position, title, released, copies_json, missing_json, extra_json) VALUES (?, ?, ?, ?, ?, ?, ?)');
-        $n = 0;
-        foreach ($gta['eras'] as $i => $e) {
-            $extra = array_diff_key($e, array_flip(['id', 'name', 'blurb', 'games']));
-            $era->execute([$e['id'], $i, $e['name'], $e['blurb'] ?? null, $extra ? to_json($extra) : null]);
-            foreach ($e['games'] as $j => $g) {
-                $extra = array_diff_key($g, array_flip(['title', 'released', 'copies', 'missing']));
-                $game->execute([$e['id'], $j, $g['title'], $g['released'] ?? null, to_json($g['copies'] ?? []), to_json($g['missing'] ?? []), $extra ? to_json($extra) : null]);
-                $n++;
-            }
+    // the GTA and Pokémon checklists
+    foreach (['gta' => 'gta.json', 'pokemon' => 'pokemon.json'] as $collection => $name) {
+        if ($data = $read($name)) {
+            $n = load_checklist($collection, $data);
+            echo count($data['eras']) . " $collection eras, $n games\n";
         }
-        set_setting('gta_updated', $gta['updated'] ?? null);
-        echo count($gta['eras']) . " GTA eras, $n games\n";
     }
 });
 

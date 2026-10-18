@@ -80,12 +80,13 @@ function json_response(mixed $data, int $status = 200): never
 
 /**
  * The public API's answer: JSON that is anonymous and cacheable, with an ETag of
- * data_version(), so a browser asks again cheaply and gets a 304 until
- * something changes. ?v= on the request (the page adds it) makes a fresh copy.
+ * what it says, so a browser asks again cheaply and gets a 304 until something
+ * changes (a cover replaced by FTP too, which moves no row, only its ?v=).
+ * ?v= on the request (the page adds it, data_version()) makes a fresh copy.
  */
 function send_api_json(string $json): never
 {
-    $etag = '"' . data_version() . '"';
+    $etag = '"' . substr(md5($json), 0, 12) . '"';
     header('Content-Type: application/json; charset=utf-8');
     header('X-Content-Type-Options: nosniff');
     header('Cache-Control: public, max-age=60, must-revalidate');

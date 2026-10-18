@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- the Poké Ball beside the Pokémon page's title and over the case the pointer is on (css/pokemon.css), lit from the top left -->
+  <defs>
+    <radialGradient id="red" cx=".35" cy=".25" r=".8"><stop offset="0" stop-color="#ff6a4d"/><stop offset=".55" stop-color="#e3350d"/><stop offset="1" stop-color="#a81f05"/></radialGradient>
+    <radialGradient id="white" cx=".35" cy=".1" r=".95"><stop offset="0" stop-color="#ffffff"/><stop offset=".7" stop-color="#e9ecef"/><stop offset="1" stop-color="#b9c0c8"/></radialGradient>
+  </defs>
+  <circle cx="32" cy="32" r="29" fill="url(#white)"/>
+  <path d="M3 32a29 29 0 0 1 58 0z" fill="url(#red)"/>
+  <circle cx="32" cy="32" r="29" fill="none" stroke="#1d1d24" stroke-width="3.5"/>
+  <path d="M3 32h58" stroke="#1d1d24" stroke-width="6"/>
+  <circle cx="32" cy="32" r="10" fill="#1d1d24"/>
+  <circle cx="32" cy="32" r="6.5" fill="url(#white)" stroke="#9aa3ad" stroke-width="1"/>
+  <ellipse cx="20" cy="15" rx="7" ry="3.5" fill="#fff" fill-opacity=".45" transform="rotate(-30 20 15)"/>
+</svg>

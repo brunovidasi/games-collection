@@ -42,6 +42,8 @@ function db(): PDO
  */
 const MIGRATED_COLUMNS = [
     'hardware' => ['released' => 'TEXT', 'manufacturer' => 'TEXT', 'specs_json' => 'TEXT', 'photo_json' => 'TEXT'],
+    'gta_eras' => ['collection' => "TEXT NOT NULL DEFAULT 'gta'"],
+    'gta_games' => ['collection' => "TEXT NOT NULL DEFAULT 'gta'"],
 ];
 
 function run_migrations(PDO $db): void
@@ -67,6 +69,11 @@ function run_migrations(PDO $db): void
             $db->exec("INSERT INTO settings (key, value) VALUES ('data_changed_at', '\"" . gmdate('c') . "\"')
                 ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = datetime('now')");
         });
+    }
+
+    // Once: the Pokémon collection's checklist from seed/pokemon.json, and the copies it needs (includes/site.php)
+    if (function_exists('seed_pokemon') && !$db->query("SELECT 1 FROM settings WHERE key = 'seeded_pokemon'")->fetch()) {
+        seed_pokemon();
     }
 }
 

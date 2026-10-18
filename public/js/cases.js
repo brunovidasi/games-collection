@@ -129,7 +129,7 @@
   // a Platinum copy's silver band across the top of the cover, over the black one on the scan
   // (left off when the scan is already of the Platinum print, named *-platinum.jpg)
   const PLAT = '<div class="plat"><em>PlayStation<sup>®</sup><b>2</b></em><span>Platinum</span></div>';
-  const drawPlat = g => g.platinum && styleOf(g) === 'ps2' && !/-platinum\.\w+$/.test(g.cover.file);
+  const drawPlat = g => g.platinum && styleOf(g) === 'ps2' && !/-platinum\.\w+(\?|$)/.test(g.cover.file);
   function frontHTML(g, L, lazy) {
     const inner = g.cover
       ? `<div class="ins${g.cover.plain ? ' plain' : ''}">${g.cover.plain ? `<div class="band">${LOGO[styleOf(g)]}</div>` : ''}${img(g, 'scan', lazy)}${drawPlat(g) ? PLAT : ''}</div>`

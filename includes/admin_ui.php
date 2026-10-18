@@ -240,6 +240,10 @@ function field_from_post(string $key, mixed $raw, ?string $shape = null): array
     if ($key === 'barcode') {
         return clean_barcode($raw);
     }
+    if ($key === 'price') {
+        $amount = str_replace([',', '$', ' '], ['.', '', ''], $raw);
+        return is_numeric($amount) ? [number_format((float) $amount, 2, '.', ''), null] : [$raw, 'Price paid must be a number, like 79.95.'];
+    }
 
     switch ($f['type']) {
         case 'bool':

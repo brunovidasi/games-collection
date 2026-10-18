@@ -15,9 +15,14 @@
      games(db, …data)   the games on this page
      group(g)    { key, label, name, order } — the game a copy belongs to
      groupNoun   what a group is called ("game")
+     groups      optional, in place of group and groupNoun: more than one way to group them,
+                 [{ key, noun, fn(g) }], the first the usual one; the sort menu offers each
+                 ("By generation", "By pair"), and the one picked is remembered
+     openSort    optional: 'group' opens it from the top bar grouped ("By game"), not newest first
      hero(games) the header's HTML
      figures(games)     the figures in the top bar beside the site's name: [count, label, a shorter label for phones?]
-     checklist(el, games)   draws the checklist view into el
+     checklist(el, games, grouping)   draws the checklist view into el; grouping is { key, all, set(key) }:
+                            the way of grouping picked, every way there is, and how to pick another
      drawer(g, games)       optional: { title, html } of a section for a game's drawer, or null
                             (shown wherever the game is opened, the whole shelf too) */
 
@@ -47,6 +52,9 @@
     return { key: g.console, label: c.short, name: c.name, order: ORDER[g.console], art: CONSOLE_ART[g.console] };
   };
   let GROUP = 'console', groupOf = byConsole;
+  // a collection's ways of grouping its games: its groups (js/pokemon.js), or its one group; GROUPING is the one showing
+  const groupingsOf = col => { const c = COLLECTIONS[col]; return !c ? [] : c.groups || [{ key: 'game', noun: c.groupNoun, fn: c.group }]; };
+  let GROUPING = null;
 
   /* ---------- sorting: the menu and the list's headers set the same sort ---------- */
   // where a game files by title: without a leading article (The Sims under S), or where its sortAs says
@@ -74,6 +82,9 @@
   };
   const MENU = {
     console: { key: GROUP, dir: 'asc', label: 'By console' },
+    // a collection's other ways of grouping (js/pokemon.js: by pair, by region), offered on its page only
+    ...Object.fromEntries(Object.entries(COLLECTIONS).flatMap(([col, c]) => (c.groups || []).slice(1)
+      .map(gr => [`${col}-${gr.key}`, { key: 'group', dir: 'asc', label: `By ${gr.noun}`, col, grouping: gr.key }]))),
     added: { key: 'added', dir: 'desc', label: 'Recently added', short: 'Recent' },
     played: { key: 'played', dir: 'desc', label: 'Most played first', short: 'Most played' },
     title: { key: 'title', dir: 'asc', label: 'Title A–Z' },
@@ -302,6 +313,7 @@
   }
 
   function setSort(sort) {
+    if (sort.grouping && CFG) pickGrouping(sort.grouping, true);
     state.sort = validSort(sort);
     store.set('sort', state.sort);
     changed();
@@ -317,6 +329,7 @@
     $$('.fam').forEach(f => { f.hidden = !$$('.chip[data-c]', f).some(c => !c.hidden); });
     $$('#view [data-view]').forEach(b => { b.hidden = !VIEWS.includes(b.dataset.view); });
     $('#sort option[value="console"]').textContent = MENU.console.label;
+    $$('#sort option').forEach(o => { const m = MENU[o.value]; if (m?.col) o.hidden = m.col !== COL; });
     $$('[data-n]').forEach(i => {
       const k = i.dataset.n, n = k === 'all' ? tally(b) : (counts[k] || 0);
       i.textContent = n + (n === 1 ? ' game' : ' games');
@@ -340,7 +353,8 @@
     });
     $$('#lib button').forEach(x => x.classList.toggle('on', x.dataset.lib === state.lib));
     // the sort menu names the sort, or a line of its own for one set from a column
-    const [choice] = Object.entries(MENU).find(([, m]) => m.key === state.sort.key && m.dir === state.sort.dir) || [];
+    const [choice] = Object.entries(MENU).find(([, m]) => m.key === state.sort.key && m.dir === state.sort.dir
+      && (!m.col || m.col === COL) && (!m.grouping || m.grouping === GROUPING?.key)) || [];
     const custom = $('#sort option[value="custom"]');
     custom.hidden = !!choice;
     custom.textContent = `Sorted by ${SORT_BY[state.sort.key].label} ${state.sort.dir === 'asc' ? '↑' : '↓'}`;
@@ -366,7 +380,7 @@
   function warm(g) {
     if (!g?.cover || warmed.has(g)) return;
     warmed.add(g);
-    Object.values(g.cover).forEach(f => { if (typeof f === 'string' && /\.(jpe?g|png|webp|avif|gif)$/i.test(f)) new Image().src = f; });
+    Object.values(g.cover).forEach(f => { if (typeof f === 'string' && /\.(jpe?g|png|webp|avif|gif)(\?|$)/i.test(f)) new Image().src = f; });
   }
   host.addEventListener('pointerover', e => {
     const item = e.target.closest('[data-id]');
@@ -374,7 +388,7 @@
     if (item) warm(byId.get(item.dataset.id));
     if (!item || e.pointerType === 'touch' || !host.contains(item) || state.view !== 'shelf') return;
     const g = byId.get(item.dataset.id);
-    tipEl.innerHTML = `<b>${esc(g.title)}</b><span>${CONSOLE_BY_ID[g.console].short}${g.platinum ? ' Platinum' : ''} · ${Case.year(g)} · ${esc(REGIONS[g.region]?.name || g.region)}${g.format !== 'boxed' ? ' · ' + FORMATS[g.format] : ''}${Collection.caseName(g) ? ' · ' + Collection.caseName(g) : ''}</span>`;
+    tipEl.innerHTML = `<b>${esc(g.title)}</b><span>${PLATFORM_OF(g).short}${g.platinum ? ' Platinum' : ''} · ${Case.year(g)} · ${esc(REGIONS[g.region]?.name || g.region)}${g.format !== 'boxed' ? ' · ' + FORMATS[g.format] : ''}${Collection.caseName(g) ? ' · ' + Collection.caseName(g) : ''}</span>`;
     tipEl.classList.add('vis');
   });
   host.addEventListener('pointerout', e => { if (!e.relatedTarget || !e.relatedTarget.closest || !e.relatedTarget.closest('[data-id]')) tipEl.classList.remove('vis'); });
@@ -450,7 +464,13 @@
     host.classList.toggle('showcaseview', state.view === 'showcase');
     cancelAnimationFrame(SC.raf);
     SC.raf = 0;
-    if (state.view === 'checklist') { CFG.checklist($('#checklist'), ALL); Detail.rehome(); fetchFaces($('#checklist')); return; }
+    if (state.view === 'checklist') {
+      const grouping = { key: GROUPING?.key, all: groupingsOf(COL), set: key => { pickGrouping(key, true); changed(); } };
+      CFG.checklist($('#checklist'), ALL, grouping);
+      Detail.rehome();
+      fetchFaces($('#checklist'));
+      return;
+    }
     if (!games.length) {
       host.innerHTML = `<div class="empty-msg"><b>Nothing on this shelf</b>No games match those filters. Try another console or clear the search.</div>`;
       return;
@@ -485,7 +505,7 @@
     btn.className = `item ${kind}` + (animate ? ' enter' : '');
     btn.dataset.id = g.id;
     btn.style.animationDelay = Math.min(n * 6, 900) + 'ms';
-    btn.setAttribute('aria-label', `${g.title}, ${CONSOLE_BY_ID[g.console].name}, ${Case.year(g)}`);
+    btn.setAttribute('aria-label', `${g.title}, ${PLATFORM_OF(g).name}, ${Case.year(g)}`);
     return btn;
   }
 
@@ -651,7 +671,7 @@
     wrap.append(head);
 
     games.forEach((g, i) => {
-      const c = CONSOLE_BY_ID[g.console];
+      const c = PLATFORM_OF(g);
       const row = document.createElement('div');
       row.className = 'lrow';
       row.dataset.id = g.id;
@@ -689,7 +709,7 @@
   /* ---------- a game standing face out with its name under it: in the grid and in the rows ----------
      It stands at scale s, no wider than room and no taller than the stage. */
   function cellOf(g, s, room, stage, animate, delay) {
-    const c = CONSOLE_BY_ID[g.console];
+    const c = PLATFORM_OF(g);
     const cell = document.createElement('button');
     cell.type = 'button';
     cell.className = 'cell' + (animate ? ' enter' : '');
@@ -784,7 +804,7 @@
         btn.className = `item ${kind}` + (animate && i < 14 ? ' enter' : '');
         btn.dataset.id = g.id;
         btn.style.animationDelay = Math.min(n++ * 8, 500) + 'ms';
-        btn.setAttribute('aria-label', `${g.title}, ${CONSOLE_BY_ID[g.console].name}, ${Case.year(g)}`);
+        btn.setAttribute('aria-label', `${g.title}, ${PLATFORM_OF(g).name}, ${Case.year(g)}`);
         const tile = document.createElement('span');
         tile.className = 'gt';
         if (kind === 'loose') tile.append(Case.cart(g, s * cartK(g)));
@@ -854,7 +874,7 @@
       el.className = 'sc-it';
       el.dataset.id = g.id;
       el.tabIndex = -1;
-      el.setAttribute('aria-label', `${g.title}, ${CONSOLE_BY_ID[g.console].name}, ${Case.year(g)}`);
+      el.setAttribute('aria-label', `${g.title}, ${PLATFORM_OF(g).name}, ${Case.year(g)}`);
       const tile = document.createElement('span');
       tile.className = 'gt';
       let w;
@@ -1008,11 +1028,11 @@
 
   function scCaption(i) {
     SC.shown = i;
-    const g = games[i], c = CONSOLE_BY_ID[g.console];
+    const g = games[i], c = PLATFORM_OF(g);
     SC.id = g.id;
     SC.wrap.style.setProperty('--tint', (g.colors && g.colors[1]) || '#2a2a30');
     SC.cap.innerHTML = `<div class="sc-fade">
-      <p class="sc-eyebrow"><span class="spot-art">${CONSOLE_ART[g.console] || ''}</span>${esc(c.name)} · ${esc(REGIONS[g.region]?.name || g.region)}</p>
+      <p class="sc-eyebrow"><span class="spot-art">${CONSOLE_ART[c.id] || CONSOLE_ART[g.console] || ''}</span>${esc(c.name)} · ${esc(REGIONS[g.region]?.name || g.region)}</p>
       <h2>${esc(g.title)}</h2>
       <p class="sc-meta">${[Case.year(g), g.publisher, g.format !== 'boxed' && FORMATS[g.format], g.platinum && 'Platinum', Collection.caseName(g)].filter(Boolean).map(esc).join(' · ')}</p>
       <button type="button" class="sc-go">Take a closer look</button></div>`;
@@ -1244,7 +1264,7 @@
     /* A digital copy has no case to turn round, so its back is the licence it came as: a store receipt
        with the shop it activates in and what was bought. (Purchase details can join it once a store's API is wired in.) */
     function receipt(g, k) {
-      const c = CONSOLE_BY_ID[g.console];
+      const c = PLATFORM_OF(g);
       const L = (g.launcher && g.launcher !== 'none' && LAUNCHERS[g.launcher]) || STORE[g.console] || { name: 'Digital store', bg: '#3a3a3a', fg: '#ffffff', glyph: '↓' };
       const pack = g.pack && g.pack !== 'Base game' ? [g.pack, g.packCode].filter(Boolean).join(' · ') : '';
       const rows = [
@@ -1318,12 +1338,11 @@
     }
 
     function copyHtml(g) {
-      const c = CONSOLE_BY_ID[g.console];
       const L = g.launcher && g.launcher !== 'none' && LAUNCHERS[g.launcher];
       const pack = g.pack && g.pack !== 'Base game' ? [g.pack, g.packCode].filter(Boolean).join(' · ') : '';
       const format = g.format === 'digital' && STORE[g.console] ? `${FORMATS.digital} · ${STORE[g.console].name}` : FORMATS[g.format];
       return facts([
-        fact('Platform', esc(c.name + (g.mac ? ' / Mac' : ''))),
+        fact('Platform', esc(PLATFORM_OF(g).name + (g.mac ? ' / Mac' : ''))),
         fact('Region', esc(REGIONS[g.region]?.long || g.region)),
         fact('Released', g.released && esc(Case.date(g.released, true))),
         fact('Publisher', esc(g.publisher)),
@@ -1427,7 +1446,7 @@
     }
 
     function linksHtml(g) {
-      const c = CONSOLE_BY_ID[g.console];
+      const c = PLATFORM_OF(g);
       const q = encodeURIComponent(`${g.title} ${c.name} ${REGIONS[g.region]?.name || g.region} box art`);
       return section('Links', [
         g.steam?.storeUrl && link(g.steam.storeUrl, 'Steam store page'),
@@ -1601,9 +1620,9 @@
     }
 
     function infoAbove(g) {
-      const c = CONSOLE_BY_ID[g.console];
+      const c = PLATFORM_OF(g);
       const pack = g.pack && g.pack !== 'Base game' ? g.pack : '';
-      return `<p class="spot-eyebrow" style="--n:0"><span class="spot-art">${CONSOLE_ART[g.console] || ''}</span>${esc(c.name)}${g.mac ? ' / Mac' : ''} · ${esc(REGIONS[g.region]?.name || g.region)}</p><h2 style="--n:1">${esc(g.title)}</h2>
+      return `<p class="spot-eyebrow" style="--n:0"><span class="spot-art">${CONSOLE_ART[c.id] || CONSOLE_ART[g.console] || ''}</span>${esc(c.name)}${g.mac ? ' / Mac' : ''} · ${esc(REGIONS[g.region]?.name || g.region)}</p><h2 style="--n:1">${esc(g.title)}</h2>
         <p class="spot-who" style="--n:2">${[g.released && Case.date(g.released, true), g.publisher, pack].filter(Boolean).map(esc).join(' · ')}</p>`;
     }
     function infoBelow(g) {
@@ -2133,6 +2152,15 @@
   // /sims or /gta in the address picks one; the top bar's links pick one in place
   // the shelf's own, from Settings: the page may have come dressed as a collection (index.php)
   const SHELF = { title: SITE.pages?.shelf?.title || document.title, icon: BASE + 'favicon.svg', about: SITE.pages?.shelf?.description || '' };
+  // the way a collection's games are grouped (remembered when picked: save), and what the sort menu calls it
+  function pickGrouping(key, save = false) {
+    const all = groupingsOf(COL);
+    GROUPING = all.find(x => x.key === key) || all[0] || null;
+    if (GROUPING && save) store.set(`grouping.${COL}`, GROUPING.key);
+    groupOf = GROUPING ? GROUPING.fn : byConsole;
+    MENU.console.label = all.length ? `By ${all[0].noun}` : 'By console';
+    SORT_BY.group.label = GROUPING ? GROUPING.noun[0].toUpperCase() + GROUPING.noun.slice(1) : 'Game';
+  }
   function setCollection(col) {
     const root = document.documentElement;
     root.classList.remove('collection', ...Object.keys(COLLECTIONS)); // and the one index.php dressed it as
@@ -2141,9 +2169,9 @@
     if (COL) root.classList.add('collection', COL);
     ALL = CFG ? LISTS[COL] : DB;
     GROUP = CFG ? 'group' : 'console';
-    groupOf = CFG ? CFG.group : byConsole;
     MENU.console.key = GROUP;
-    MENU.console.label = CFG ? `By ${CFG.groupNoun}` : 'By console';
+    MENU.console.grouping = groupingsOf(COL)[0]?.key;
+    pickGrouping(store.get(`grouping.${COL}`));
     VIEWS = viewsOf(COL);
     state.view = openingView(COL);
     // sorted by console on the shelf is sorted by game in a collection, and back
@@ -2378,12 +2406,13 @@
     add('count', $('#count'));
     return out;
   }
-  // what a top bar's link opens on, every console showing: a collection in the grid, newest first,
-  // the whole shelf on its bookcase by console (remembered, so the site's name reloads it the same way)
+  // what a top bar's link opens on, every console showing: a collection in the grid, newest first (or grouped,
+  // openSort: The Sims by game), the whole shelf on its bookcase by console (remembered, so the site's name
+  // reloads it the same way)
   function openFresh() {
     state.sel = new Set();
     state.view = defaultView(COL);
-    state.sort = validSort(CFG ? MENU.newest : MENU.console);
+    state.sort = validSort(CFG && CFG.openSort !== 'group' ? MENU.newest : MENU.console);
     store.set(viewKey(COL), state.view);
     store.set('sort', state.sort);
   }
@@ -2511,7 +2540,7 @@
         if (xbox) g.xbox = xboxOf(g, xbox);
         if (ea) g.ea = eaOf(g, ea);
         if (rockstar) g.rockstar = rockstarOf(g, rockstar);
-        g._hay = fold([g.title, g.listedAs, g.publisher, g.developer, g.genre, g.released, g.region, REGIONS[g.region]?.std !== g.region && REGIONS[g.region]?.long, ...[g.console, ...(g.alsoOn || [])].flatMap(c => [CONSOLE_BY_ID[c].name, CONSOLE_BY_ID[c].short]), g.note, g.edition, g.platinum && 'Platinum', g.steelbook && 'SteelBook tin', g.series, g.pack, g.packCode, g.mac && 'Mac', g.steam && 'Steam', g.format === 'digital' && STORE[g.console] && 'eShop', ...(g.steam?.store?.genres || []), g.psn?.trophies?.platinum && 'Platinum trophy', g.xbox && 'Xbox Live', inLib(g, 'ea') && 'EA app', g.rockstar && 'Rockstar Games Launcher', ...nicknames(g)].join(' | '));
+        g._hay = fold([g.title, g.listedAs, g.publisher, g.developer, g.genre, g.released, g.region, REGIONS[g.region]?.std !== g.region && REGIONS[g.region]?.long, ...[g.console, g.madeFor, ...(g.alsoOn || [])].filter(Boolean).flatMap(c => [CONSOLE_BY_ID[c].name, CONSOLE_BY_ID[c].short]), g.note, g.edition, g.platinum && 'Platinum', g.steelbook && 'SteelBook tin', g.series, g.pack, g.packCode, g.mac && 'Mac', g.steam && 'Steam', g.format === 'digital' && STORE[g.console] && 'eShop', ...(g.steam?.store?.genres || []), g.psn?.trophies?.platinum && 'Platinum trophy', g.xbox && 'Xbox Live', inLib(g, 'ea') && 'EA app', g.rockstar && 'Rockstar Games Launcher', ...nicknames(g)].join(' | '));
       });
       // an add-on is played in its game, so every pack of a series (and its other base game copies) shows the play time,
       // last played and achievements of the series' base game in the EA app (or the collection that holds it: The Sims,

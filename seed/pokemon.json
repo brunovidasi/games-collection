@@ -1,0 +1,501 @@
+{
+  "updated": "2026-10-18",
+  "eras": [
+    {
+      "id": "pokemon-gen-1",
+      "name": "Generation I",
+      "short": "Gen I",
+      "blurb": "Kanto, on the Game Boy: where it all started.",
+      "games": [
+        {
+          "title": "Pokémon Red",
+          "released": "1996-02-27",
+          "copies": [],
+          "missing": [
+            "gb"
+          ],
+          "pair": "Red, Green & Blue",
+          "region": "Kanto"
+        },
+        {
+          "title": "Pokémon Green",
+          "released": "1996-02-27",
+          "copies": [],
+          "missing": [
+            "gb"
+          ],
+          "pair": "Red, Green & Blue",
+          "region": "Kanto",
+          "note": "Only ever sold in Japan."
+        },
+        {
+          "title": "Pokémon Blue",
+          "released": "1996-10-15",
+          "copies": [
+            "gbc-pokemon-blue-version"
+          ],
+          "missing": [],
+          "pair": "Red, Green & Blue",
+          "region": "Kanto"
+        },
+        {
+          "title": "Pokémon Yellow",
+          "released": "1998-09-12",
+          "copies": [
+            "gbc-pokemon-yellow-version",
+            "3ds-pokemon-yellow-version"
+          ],
+          "missing": [],
+          "pair": "Yellow",
+          "region": "Kanto"
+        }
+      ]
+    },
+    {
+      "id": "pokemon-gen-2",
+      "name": "Generation II",
+      "short": "Gen II",
+      "blurb": "Johto, in colour, with day and night.",
+      "games": [
+        {
+          "title": "Pokémon Gold",
+          "released": "1999-11-21",
+          "copies": [
+            "gbc-pokemon-gold-version",
+            "3ds-pokemon-gold-version"
+          ],
+          "missing": [],
+          "pair": "Gold & Silver",
+          "region": "Johto"
+        },
+        {
+          "title": "Pokémon Silver",
+          "released": "1999-11-21",
+          "copies": [
+            "gbc-pokemon-silver-version"
+          ],
+          "missing": [],
+          "pair": "Gold & Silver",
+          "region": "Johto"
+        },
+        {
+          "title": "Pokémon Crystal",
+          "released": "2000-12-14",
+          "copies": [],
+          "missing": [
+            "gbc"
+          ],
+          "pair": "Crystal",
+          "region": "Johto"
+        }
+      ]
+    },
+    {
+      "id": "pokemon-gen-3",
+      "name": "Generation III",
+      "short": "Gen III",
+      "blurb": "Hoenn on the Game Boy Advance, and Kanto made again.",
+      "games": [
+        {
+          "title": "Pokémon Ruby",
+          "released": "2002-11-21",
+          "copies": [],
+          "missing": [
+            "gba"
+          ],
+          "pair": "Ruby & Sapphire",
+          "region": "Hoenn"
+        },
+        {
+          "title": "Pokémon Sapphire",
+          "released": "2002-11-21",
+          "copies": [],
+          "missing": [
+            "gba"
+          ],
+          "pair": "Ruby & Sapphire",
+          "region": "Hoenn"
+        },
+        {
+          "title": "Pokémon FireRed",
+          "released": "2004-01-29",
+          "copies": [],
+          "missing": [
+            "gba"
+          ],
+          "pair": "FireRed & LeafGreen",
+          "region": "Kanto",
+          "remakes": "Red & Green"
+        },
+        {
+          "title": "Pokémon LeafGreen",
+          "released": "2004-01-29",
+          "copies": [],
+          "missing": [
+            "gba"
+          ],
+          "pair": "FireRed & LeafGreen",
+          "region": "Kanto",
+          "remakes": "Red & Green"
+        },
+        {
+          "title": "Pokémon Emerald",
+          "released": "2004-09-16",
+          "copies": [],
+          "missing": [
+            "gba"
+          ],
+          "pair": "Emerald",
+          "region": "Hoenn"
+        }
+      ]
+    },
+    {
+      "id": "pokemon-gen-4",
+      "name": "Generation IV",
+      "short": "Gen IV",
+      "blurb": "Sinnoh on the DS, and Johto made again.",
+      "games": [
+        {
+          "title": "Pokémon Diamond",
+          "released": "2006-09-28",
+          "copies": [
+            "ds-pokemon-diamond-version",
+            "ds-pokemon-diamond-version-2"
+          ],
+          "missing": [],
+          "pair": "Diamond & Pearl",
+          "region": "Sinnoh"
+        },
+        {
+          "title": "Pokémon Pearl",
+          "released": "2006-09-28",
+          "copies": [
+            "ds-pokemon-pearl-version"
+          ],
+          "missing": [],
+          "pair": "Diamond & Pearl",
+          "region": "Sinnoh"
+        },
+        {
+          "title": "Pokémon Platinum",
+          "released": "2008-09-13",
+          "copies": [
+            "ds-pokemon-platinum-version"
+          ],
+          "missing": [],
+          "pair": "Platinum",
+          "region": "Sinnoh"
+        },
+        {
+          "title": "Pokémon HeartGold",
+          "released": "2009-09-12",
+          "copies": [
+            "ds-pokemon-heartgold-version"
+          ],
+          "missing": [],
+          "pair": "HeartGold & SoulSilver",
+          "region": "Johto",
+          "remakes": "Gold & Silver"
+        },
+        {
+          "title": "Pokémon SoulSilver",
+          "released": "2009-09-12",
+          "copies": [
+            "ds-pokemon-soulsilver-version"
+          ],
+          "missing": [],
+          "pair": "HeartGold & SoulSilver",
+          "region": "Johto",
+          "remakes": "Gold & Silver"
+        }
+      ]
+    },
+    {
+      "id": "pokemon-gen-5",
+      "name": "Generation V",
+      "short": "Gen V",
+      "blurb": "Unova, the one region with sequels.",
+      "games": [
+        {
+          "title": "Pokémon Black",
+          "released": "2010-09-18",
+          "copies": [
+            "ds-pokemon-black-version"
+          ],
+          "missing": [],
+          "pair": "Black & White",
+          "region": "Unova"
+        },
+        {
+          "title": "Pokémon White",
+          "released": "2010-09-18",
+          "copies": [
+            "ds-pokemon-white-version"
+          ],
+          "missing": [],
+          "pair": "Black & White",
+          "region": "Unova"
+        },
+        {
+          "title": "Pokémon Black 2",
+          "released": "2012-06-23",
+          "copies": [
+            "ds-pokemon-black-version-2"
+          ],
+          "missing": [],
+          "pair": "Black 2 & White 2",
+          "region": "Unova"
+        },
+        {
+          "title": "Pokémon White 2",
+          "released": "2012-06-23",
+          "copies": [
+            "ds-pokemon-white-version-2"
+          ],
+          "missing": [],
+          "pair": "Black 2 & White 2",
+          "region": "Unova"
+        }
+      ]
+    },
+    {
+      "id": "pokemon-gen-6",
+      "name": "Generation VI",
+      "short": "Gen VI",
+      "blurb": "Kalos in 3D on the 3DS, and Hoenn made again.",
+      "games": [
+        {
+          "title": "Pokémon X",
+          "released": "2013-10-12",
+          "copies": [
+            "3ds-pokemon-x"
+          ],
+          "missing": [],
+          "pair": "X & Y",
+          "region": "Kalos"
+        },
+        {
+          "title": "Pokémon Y",
+          "released": "2013-10-12",
+          "copies": [
+            "3ds-pokemon-y"
+          ],
+          "missing": [],
+          "pair": "X & Y",
+          "region": "Kalos"
+        },
+        {
+          "title": "Pokémon Omega Ruby",
+          "released": "2014-11-21",
+          "copies": [
+            "3ds-pokemon-omega-ruby"
+          ],
+          "missing": [],
+          "pair": "Omega Ruby & Alpha Sapphire",
+          "region": "Hoenn",
+          "remakes": "Ruby & Sapphire"
+        },
+        {
+          "title": "Pokémon Alpha Sapphire",
+          "released": "2014-11-21",
+          "copies": [
+            "3ds-pokemon-alpha-sapphire"
+          ],
+          "missing": [],
+          "pair": "Omega Ruby & Alpha Sapphire",
+          "region": "Hoenn",
+          "remakes": "Ruby & Sapphire"
+        }
+      ]
+    },
+    {
+      "id": "pokemon-gen-7",
+      "name": "Generation VII",
+      "short": "Gen VII",
+      "blurb": "Alola on the 3DS, then Kanto on the Switch.",
+      "games": [
+        {
+          "title": "Pokémon Sun",
+          "released": "2016-11-18",
+          "copies": [
+            "3ds-pokemon-sun"
+          ],
+          "missing": [],
+          "pair": "Sun & Moon",
+          "region": "Alola"
+        },
+        {
+          "title": "Pokémon Moon",
+          "released": "2016-11-18",
+          "copies": [
+            "3ds-pokemon-moon"
+          ],
+          "missing": [],
+          "pair": "Sun & Moon",
+          "region": "Alola"
+        },
+        {
+          "title": "Pokémon Ultra Sun",
+          "released": "2017-11-17",
+          "copies": [
+            "3ds-pokemon-ultra-sun"
+          ],
+          "missing": [],
+          "pair": "Ultra Sun & Ultra Moon",
+          "region": "Alola"
+        },
+        {
+          "title": "Pokémon Ultra Moon",
+          "released": "2017-11-17",
+          "copies": [
+            "3ds-pokemon-ultra-moon"
+          ],
+          "missing": [],
+          "pair": "Ultra Sun & Ultra Moon",
+          "region": "Alola"
+        },
+        {
+          "title": "Pokémon: Let's Go, Pikachu!",
+          "released": "2018-11-16",
+          "copies": [
+            "switch-pokemon-lets-go-pikachu",
+            "switch-pokemon-lets-go-pikachu-digital"
+          ],
+          "missing": [],
+          "pair": "Let's Go, Pikachu! & Let's Go, Eevee!",
+          "region": "Kanto",
+          "remakes": "Yellow"
+        },
+        {
+          "title": "Pokémon: Let's Go, Eevee!",
+          "released": "2018-11-16",
+          "copies": [],
+          "missing": [
+            "switch"
+          ],
+          "pair": "Let's Go, Pikachu! & Let's Go, Eevee!",
+          "region": "Kanto",
+          "remakes": "Yellow"
+        }
+      ]
+    },
+    {
+      "id": "pokemon-gen-8",
+      "name": "Generation VIII",
+      "short": "Gen VIII",
+      "blurb": "Galar, Sinnoh made again, and Hisui long before it.",
+      "games": [
+        {
+          "title": "Pokémon Sword",
+          "released": "2019-11-15",
+          "copies": [
+            "switch-pokemon-sword"
+          ],
+          "missing": [],
+          "pair": "Sword & Shield",
+          "region": "Galar"
+        },
+        {
+          "title": "Pokémon Shield",
+          "released": "2019-11-15",
+          "copies": [],
+          "missing": [
+            "switch"
+          ],
+          "pair": "Sword & Shield",
+          "region": "Galar"
+        },
+        {
+          "title": "Pokémon Brilliant Diamond",
+          "released": "2021-11-19",
+          "copies": [
+            "switch-pokemon-brilliant-diamond"
+          ],
+          "missing": [],
+          "pair": "Brilliant Diamond & Shining Pearl",
+          "region": "Sinnoh",
+          "remakes": "Diamond & Pearl"
+        },
+        {
+          "title": "Pokémon Shining Pearl",
+          "released": "2021-11-19",
+          "copies": [],
+          "missing": [
+            "switch"
+          ],
+          "pair": "Brilliant Diamond & Shining Pearl",
+          "region": "Sinnoh",
+          "remakes": "Diamond & Pearl"
+        },
+        {
+          "title": "Pokémon Legends: Arceus",
+          "released": "2022-01-28",
+          "copies": [
+            "switch-pokemon-legends-arceus"
+          ],
+          "missing": [],
+          "pair": "Legends: Arceus",
+          "region": "Sinnoh",
+          "setting": "Hisui, Sinnoh long ago"
+        }
+      ]
+    },
+    {
+      "id": "pokemon-gen-9",
+      "name": "Generation IX",
+      "short": "Gen IX",
+      "blurb": "Paldea, open to roam, and back to Lumiose City.",
+      "games": [
+        {
+          "title": "Pokémon Scarlet",
+          "released": "2022-11-18",
+          "copies": [],
+          "missing": [
+            "switch"
+          ],
+          "pair": "Scarlet & Violet",
+          "region": "Paldea"
+        },
+        {
+          "title": "Pokémon Violet",
+          "released": "2022-11-18",
+          "copies": [
+            "switch-pokemon-violet"
+          ],
+          "missing": [],
+          "pair": "Scarlet & Violet",
+          "region": "Paldea"
+        },
+        {
+          "title": "Pokémon Legends: Z-A",
+          "released": "2025-10-16",
+          "copies": [
+            "switch2-pokemon-legends-z-a"
+          ],
+          "missing": [],
+          "pair": "Legends: Z-A",
+          "region": "Kalos",
+          "setting": "Lumiose City, Kalos"
+        }
+      ]
+    },
+    {
+      "id": "pokemon-spin-offs",
+      "name": "Spin-offs",
+      "short": "Spin-offs",
+      "spinoff": true,
+      "blurb": "Pokémon outside the main series.",
+      "games": [
+        {
+          "title": "Pokémon Quest",
+          "released": "2018-05-29",
+          "copies": [
+            "switch-pokemon-quest"
+          ],
+          "missing": []
+        }
+      ]
+    }
+  ]
+}

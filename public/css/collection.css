@@ -1,6 +1,6 @@
-/* collection.css — what the collections (?sims, ?gta: js/sims.js, js/gta.js) share: the pills
+/* collection.css — what the collections (/sims, /gta, /pokemon: js/sims.js, js/gta.js, js/pokemon.js) share: the pills
    that jump to each game, a section per game with its meter, the cases standing on
-   stretches of shelf, and the want list. Each sets its own --acc colour (css/sims.css, css/gta.css). */
+   stretches of shelf, and the want list. Each sets its own --acc colour (css/sims.css, css/gta.css, css/pokemon.css). */
 .collection { --acc: var(--gold); --acc-dk: #1f4fa8; --acc-glow: rgba(77,141,255,.4); }
 .collection .hero h1 em { font-style: normal; color: var(--acc); }
 
@@ -39,6 +39,12 @@ body[data-view="checklist"] :is(.case-wrap, .tools, .consoles-bar, .filters .sea
 .series-nav a.on { background: var(--gold); border-color: var(--gold); color: var(--ink); opacity: 1; }
 .series-nav a em { font-style: normal; opacity: .6; font-variant-numeric: tabular-nums; }
 .series-nav a.want { border-style: dashed; }
+/* a collection with more than one way of grouping its games (js/pokemon.js): the ways, ahead of the sections */
+.series-nav .grouping { flex: none; display: inline-flex; border: 1px solid var(--line-strong); border-radius: 99px; overflow: hidden; margin-right: 6px; }
+.series-nav .grouping button { border: 0; background: none; color: inherit; font: 600 12px/1 var(--font-ui); padding: 6px 12px; cursor: pointer; opacity: .8; }
+.series-nav .grouping button + button { border-left: 1px solid var(--line); }
+.series-nav .grouping button:hover { opacity: 1; }
+.series-nav .grouping button.on { background: var(--gold); color: var(--ink); opacity: 1; }
 
 /* ---------- one game in the series ---------- */
 .series { max-width: var(--page); margin: 0 auto; padding: 46px 20px 8px; scroll-margin-top: 150px; }

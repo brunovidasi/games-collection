@@ -58,7 +58,7 @@ html.gta {
   text-shadow: 0 0 6px rgba(255,79,154,.9), 0 0 20px rgba(255,79,154,.6); transform: translateY(8px) rotate(-4deg); transform-origin: 0 100%; }
 .gta .eyebrow::before { content: "Greetings from "; }
 .gta .hero p { margin-top: 10px; font-size: 15px; font-weight: 600; opacity: .85; }
-.gta .hero::before { background: linear-gradient(rgba(20,10,38,.75), rgba(20,10,38,.2) 75%, transparent); }
+.gta .hero::before { bottom: -260px; background: linear-gradient(rgba(10,4,22,.8), rgba(10,4,22,.5) 45%, rgba(10,4,22,0)); }
 /* the figures in the top bar, the counts in the sunset */
 .gta .figures { border-left-color: var(--line-strong); }
 .gta .figures span { font-weight: 800; opacity: .75; }

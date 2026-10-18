@@ -1,7 +1,7 @@
 <?php
 
 /**
- * The shelf: every page of the site (/sims and /gta are the same page in other
+ * The shelf: every page of the site (/sims, /gta and /pokemon are the same page in other
  * clothes, and /wiiu, /ps2-final-fantasy-x, /sims/wiiu are it with a console
  * picked or a game open, js/app.js). The texts, the views and the "Add me" links
  * come from Settings; the games from the API (api/games and the platforms beside it).
@@ -58,6 +58,7 @@ header('Content-Type: text/html; charset=utf-8');
 <link rel="stylesheet" href="<?= e(asset_url('css/collection.css')) ?>">
 <link rel="stylesheet" href="<?= e(asset_url('css/sims.css')) ?>">
 <link rel="stylesheet" href="<?= e(asset_url('css/gta.css')) ?>">
+<link rel="stylesheet" href="<?= e(asset_url('css/pokemon.css')) ?>">
 </head>
 <body>
 
@@ -70,6 +71,7 @@ header('Content-Type: text/html; charset=utf-8');
   <div class="topmenu" id="topmenu">
   <nav class="topnav" aria-label="Collections">
     <a href="<?= e(url('')) ?>" data-col=""<?= $current('') ?>><?= e($pages['shelf']['nav']) ?></a>
+    <a href="<?= e(url('pokemon')) ?>" data-col="pokemon"<?= $current('pokemon') ?>><img class="nav-ball" src="<?= e(url('assets/pokeball.svg')) ?>" alt="" width="13" height="13"><?= e($pages['pokemon']['nav']) ?></a>
     <a href="<?= e(url('sims')) ?>" data-col="sims"<?= $current('sims') ?>><img class="nav-bob" src="<?= e(url('assets/plumbob.svg')) ?>" alt="" width="8" height="16"><?= e($pages['sims']['nav']) ?></a>
     <a href="<?= e(url('gta')) ?>" data-col="gta"<?= $current('gta') ?>><?= e($pages['gta']['nav']) ?></a>
   </nav>
@@ -145,6 +147,7 @@ document.querySelectorAll('.addme [data-copy]').forEach(b => b.addEventListener(
 <script src="<?= e(asset_url('js/collection.js')) ?>"></script>
 <script src="<?= e(asset_url('js/sims.js')) ?>"></script>
 <script src="<?= e(asset_url('js/gta.js')) ?>"></script>
+<script src="<?= e(asset_url('js/pokemon.js')) ?>"></script>
 <script src="<?= e(asset_url('js/dropdown.js')) ?>"></script>
 <script src="<?= e(asset_url('js/app.js')) ?>"></script>
 <?php if ($config['admin']): ?><script src="<?= e(asset_url('js/barcode.js')) ?>"></script><?php endif; ?>

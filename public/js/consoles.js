@@ -39,6 +39,9 @@ window.CONSOLES = [
   { id: 'xbox',    name: 'Xbox',              short: 'Xbox',     fam: 'xbox',        w: 135, h: 190, d: 14, kind: 'keep',  media: 'dvd',     spineArt: false },
 ];
 window.CONSOLE_BY_ID = Object.fromEntries(window.CONSOLES.map(c => [c.id, c]));
+/* The system a copy was made for, as the site names it: its console, unless it stands on another's shelf
+   (madeFor: Pokémon Blue, a Game Boy game, with the Game Boy Color's). */
+window.PLATFORM_OF = g => window.CONSOLE_BY_ID[g.madeFor] || window.CONSOLE_BY_ID[g.console];
 
 /* Big-box PC games are cardboard, much bigger than a DVD case. */
 window.BIGBOX = { w: 190, h: 235, d: 50 };

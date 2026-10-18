@@ -303,7 +303,7 @@ foreach ($errors as $error) {
 
     <?php foreach (PAGE_DEFAULTS as $page => $defaults): $p = $pages[$page]; ?>
       <section class="card">
-        <h2><?= e(PAGE_NAMES[$page]) ?> <span class="muted small"><?= $page === 'shelf' ? url('') : url('?' . $page) ?></span></h2>
+        <h2><?= e(PAGE_NAMES[$page]) ?> <span class="muted small"><?= $page === 'shelf' ? url('') : url($page) ?></span></h2>
         <div class="fields">
           <div class="field"><label>In the menu</label><input type="text" name="pages[<?= $page ?>][nav]" value="<?= e($p['nav']) ?>" placeholder="<?= e($defaults['nav']) ?>"></div>
           <div class="field"><label>Title</label><input type="text" name="pages[<?= $page ?>][title]" value="<?= e($p['title']) ?>" placeholder="<?= e($defaults['title']) ?>"><div class="hint">The browser tab's title<?= $page === 'shelf' ? '' : ', before the site\'s' ?>, and what search engines show.</div></div>

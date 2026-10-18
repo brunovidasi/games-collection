@@ -19,7 +19,16 @@ const PAGE_DEFAULTS = [
     'shelf' => [
         'title'       => "Bruno's Game Shelf",
         'description' => "Bruno's video game collection, on the shelf.",
-        'nav'         => 'The Shelf',
+        'nav'         => 'All games',
+    ],
+    'pokemon' => [
+        'nav'         => 'Pokémon',
+        'title'       => 'The Pokémon Collection',
+        'description' => "Bruno's Pokémon collection: every main series version, generation by generation, the spin-offs, and the ones still to catch.",
+        'eyebrow'     => "Gotta catch 'em all",
+        'heading'     => 'Pokémon',
+        'accent'      => 'Collection',
+        'intro'       => 'Every Pokémon game I have, from Red and Green in 1996 to Legends: Z-A. A dashed outline is a version still to catch.',
     ],
     'sims' => [
         'nav'         => 'The Sims',
@@ -41,7 +50,7 @@ const PAGE_DEFAULTS = [
     ],
 ];
 
-const PAGE_NAMES = ['shelf' => 'The Shelf', 'sims' => 'The Sims', 'gta' => 'GTA'];
+const PAGE_NAMES = ['shelf' => 'All games', 'pokemon' => 'Pokémon', 'sims' => 'The Sims', 'gta' => 'GTA'];
 
 const FRIEND_DEFAULTS = [
     'psn'      => ['label' => 'PSN', 'long' => 'Add me on PSN', 'aria' => 'Add me on PlayStation', 'url' => 'https://psnprofiles.com/bvidasi', 'show' => true],
@@ -62,7 +71,7 @@ function site_settings(): array
 
 /**
  * The views turned on, and the one each page opens on, on a computer and on a phone
- * (defaults[page][desktop|mobile]). The Sims and GTA can open on their Checklist too.
+ * (defaults[page][desktop|mobile]). The Sims, GTA and Pokémon can open on their Checklist too.
  * Unset, the shelf opens on its bookcase on a computer (or the one view the site had
  * before there was one for each) and in rows on a phone; a collection in its grid.
  */
@@ -75,6 +84,7 @@ function views_settings(): array
     }
     $fallback = [
         'shelf' => ['desktop' => $saved['default'] ?? 'shelf', 'mobile' => 'rows'],
+        'pokemon' => ['desktop' => 'grid', 'mobile' => 'grid'],
         'sims'  => ['desktop' => 'grid', 'mobile' => 'grid'],
         'gta'   => ['desktop' => 'grid', 'mobile' => 'grid'],
     ];
@@ -186,7 +196,7 @@ function data_updated(): string
     return $changed ? substr($changed, 0, 10) : (string) setting('seed_updated', date('Y-m-d'));
 }
 
-/* ---------- the Sims want list and the GTA checklist ---------- */
+/* ---------- the Sims want list and the GTA and Pokémon checklists ---------- */
 
 function wants_json(string $collection = 'sims'): array
 {
@@ -215,23 +225,120 @@ function want_from_row(array $row): array
     return $w + json_column($row['extra_json']);
 }
 
-function gta_json(): array
+/**
+ * A collection's checklist (the shape data/gta.json had): its eras in order, each
+ * with its games, each game with the copies on the shelf and what is still to find.
+ * A field kept for the admin alone (privateNote) is never handed out.
+ */
+function checklist_json(string $collection): array
 {
     $eras = [];
-    foreach (db()->query('SELECT * FROM gta_eras ORDER BY position, id') as $row) {
-        $eras[$row['id']] = ['id' => $row['id'], 'name' => $row['name'], 'blurb' => $row['blurb']] + json_column($row['extra_json']) + ['games' => []];
+    $stmt = db()->prepare('SELECT * FROM gta_eras WHERE collection = ? ORDER BY position, id');
+    $stmt->execute([$collection]);
+    foreach ($stmt as $row) {
+        $eras[$row['id']] = ['id' => $row['id'], 'name' => $row['name'], 'blurb' => $row['blurb']] + checklist_extra($row['extra_json']) + ['games' => []];
     }
-    foreach (db()->query('SELECT * FROM gta_games ORDER BY position, id') as $row) {
+    $stmt = db()->prepare('SELECT * FROM gta_games WHERE collection = ? ORDER BY position, id');
+    $stmt->execute([$collection]);
+    foreach ($stmt as $row) {
         if (!isset($eras[$row['era_id']])) {
             continue;
         }
         $eras[$row['era_id']]['games'][] = [
             'title' => $row['title'], 'released' => $row['released'],
             'copies' => json_column($row['copies_json']), 'missing' => json_column($row['missing_json']),
-        ] + json_column($row['extra_json']);
+        ] + checklist_extra($row['extra_json']);
     }
 
-    return ['updated' => (string) setting('gta_updated', data_updated()), 'eras' => array_values($eras)];
+    return ['updated' => (string) setting($collection . '_updated', data_updated()), 'eras' => array_values($eras)];
+}
+
+const CHECKLIST_PRIVATE = ['privateNote'];
+
+function checklist_extra(?string $raw): array
+{
+    return array_diff_key(json_column($raw), array_flip(CHECKLIST_PRIVATE));
+}
+
+function gta_json(): array
+{
+    return checklist_json('gta');
+}
+
+function pokemon_json(): array
+{
+    return checklist_json('pokemon');
+}
+
+/** Puts a checklist (the shape checklist_json() hands out) in place of what the collection had. */
+function load_checklist(string $collection, array $data): int
+{
+    return db_transaction(function (PDO $db) use ($collection, $data) {
+        $db->prepare('DELETE FROM gta_games WHERE collection = ?')->execute([$collection]);
+        $db->prepare('DELETE FROM gta_eras WHERE collection = ?')->execute([$collection]);
+        $era = $db->prepare('INSERT INTO gta_eras (id, collection, position, name, blurb, extra_json) VALUES (?, ?, ?, ?, ?, ?)');
+        $game = $db->prepare('INSERT INTO gta_games (era_id, collection, position, title, released, copies_json, missing_json, extra_json) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+        $n = 0;
+        foreach ($data['eras'] ?? [] as $i => $e) {
+            $extra = array_diff_key($e, array_flip(['id', 'name', 'blurb', 'games']));
+            $era->execute([$e['id'], $collection, $i, $e['name'], $e['blurb'] ?? null, $extra ? to_json($extra) : null]);
+            foreach ($e['games'] ?? [] as $j => $g) {
+                $extra = array_diff_key($g, array_flip(['title', 'released', 'copies', 'missing']));
+                $game->execute([$e['id'], $collection, $j, $g['title'], $g['released'] ?? null, to_json($g['copies'] ?? []), to_json($g['missing'] ?? []), $extra ? to_json($extra) : null]);
+                $n++;
+            }
+        }
+        set_setting($collection . '_updated', $data['updated'] ?? null);
+
+        return $n;
+    });
+}
+
+/**
+ * Once, on a database that has the Pokémon games (cron/import_json.php brings them to a new one):
+ * the checklist from seed/pokemon.json, Blue and Yellow made for the Game Boy (they stand with the
+ * Game Boy Color's), and Yellow and Gold on the 3DS's Virtual Console beside their cartridges.
+ */
+function seed_pokemon(): void
+{
+    if (!game_exists('gbc-pokemon-blue-version')) {
+        return; // a database without them: nothing to do, and import_json.php loads the checklist
+    }
+    db_transaction(function (PDO $db) {
+        $has = $db->prepare('SELECT 1 FROM gta_eras WHERE collection = ? LIMIT 1');
+        $has->execute(['pokemon']);
+        if (!$has->fetchColumn()) {
+            $file = __DIR__ . '/../seed/pokemon.json';
+            $data = is_file($file) ? json_decode((string) file_get_contents($file), true) : null;
+            if (!is_array($data)) {
+                return; // not done until the checklist is in: tried again next time
+            }
+            load_checklist('pokemon', $data);
+        }
+        foreach (['gbc-pokemon-blue-version', 'gbc-pokemon-yellow-version'] as $id) {
+            if (($g = find_game($id)) && empty($g['madeFor'])) {
+                update_game(['madeFor' => 'gb'] + $g);
+            }
+        }
+        $vc = [
+            ['gbc-pokemon-yellow-version', '3ds-pokemon-yellow-version', '2016-02-27'],
+            ['gbc-pokemon-gold-version', '3ds-pokemon-gold-version', '2017-09-22'],
+        ];
+        foreach ($vc as [$from, $id, $released]) {
+            if (game_exists($id) || !($g = find_game($from))) {
+                continue;
+            }
+            insert_game([
+                'id' => $id, 'console' => '3ds', 'title' => $g['title'], 'sortAs' => $g['sortAs'] ?? null, 'edition' => 'Virtual Console',
+                'region' => 'AUS', 'released' => $released, 'dateSource' => 'manual', 'publisher' => $g['publisher'] ?? null,
+                'developer' => $g['developer'] ?? null, 'genre' => $g['genre'] ?? null, 'format' => 'digital',
+                'cover' => isset($g['cover']['file']) ? ['file' => $g['cover']['file'], 'ratio' => $g['cover']['ratio'] ?? 1, 'source' => $g['cover']['source'] ?? null, 'ref' => $g['cover']['ref'] ?? null] : null,
+                'colors' => $g['colors'] ?? null,
+            ]);
+        }
+        $db->exec("INSERT INTO settings (key, value) VALUES ('seeded_pokemon', 'true') ON CONFLICT(key) DO NOTHING");
+    });
+    touch_data();
 }
 
 /** The marks on the "Add me" buttons. */

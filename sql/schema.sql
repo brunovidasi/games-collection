@@ -271,10 +271,13 @@ CREATE TABLE IF NOT EXISTS wantlist (
     updated_at      TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
--- The GTA checklist: the series era by era, each game with the copies on the
--- shelf (game ids) and the platforms still to find.
+-- The collections' checklists (named for GTA's, the first): the series era by
+-- era, each game with the copies on the shelf (game ids) and the platforms
+-- still to find. `collection` is whose: 'gta', 'pokemon' (generation by
+-- generation, a game for each version).
 CREATE TABLE IF NOT EXISTS gta_eras (
     id              TEXT PRIMARY KEY,
+    collection      TEXT NOT NULL DEFAULT 'gta',
     position        INTEGER NOT NULL DEFAULT 0,
     name            TEXT NOT NULL,
     blurb           TEXT,
@@ -284,6 +287,7 @@ CREATE TABLE IF NOT EXISTS gta_eras (
 CREATE TABLE IF NOT EXISTS gta_games (
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
     era_id          TEXT NOT NULL REFERENCES gta_eras(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    collection      TEXT NOT NULL DEFAULT 'gta',
     position        INTEGER NOT NULL DEFAULT 0,
     title           TEXT NOT NULL,
     released        TEXT,

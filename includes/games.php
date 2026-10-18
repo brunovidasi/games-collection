@@ -186,7 +186,7 @@ function update_game(array $game, ?string $oldId = null): void
             ->execute([...array_values($row), $oldId]);
 
         if ($oldId !== $game['id']) {
-            // a bundle that lists the copy by its old id, and the GTA checklist, follow it
+            // a bundle that lists the copy by its old id, and the collections' checklists (GTA, Pokémon), follow it
             foreach ($db->query("SELECT id, contains_json FROM games WHERE contains_json LIKE " . $db->quote('%' . $oldId . '%'))->fetchAll() as $b) {
                 $list = array_map(fn ($x) => $x === $oldId ? $game['id'] : $x, json_column($b['contains_json']));
                 $db->prepare('UPDATE games SET contains_json = ? WHERE id = ?')->execute([to_json($list), $b['id']]);

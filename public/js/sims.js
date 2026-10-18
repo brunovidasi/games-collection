@@ -136,6 +136,7 @@
       return { key: SERIES[i].id, label: SERIES[i].name, name: SERIES[i].name, order: i };
     },
     groupNoun: 'game',
+    openSort: 'group', // from the top bar, by game rather than newest first
     hero,
     figures,
     checklist,

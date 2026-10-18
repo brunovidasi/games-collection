@@ -24,7 +24,7 @@
       A console copy is tagged with its console; `platformTag` false leaves that off, where the
       caption already names the platform. */
   function card(g, name = g.title, platformTag = true) {
-    const c = CONSOLE_BY_ID[g.console];
+    const c = PLATFORM_OF(g);
     const a = document.createElement('a');
     a.className = 'cell';
     a.href = Collection.href(g.id);

@@ -40,6 +40,7 @@ const FIELDS = [
     'sortAs'     => ['label' => 'Sort as', 'group' => 'shelf', 'type' => 'text', 'col' => 'sort_as', 'help' => 'Files the copy under another name: LEGO Rock Band with the Rock Band games.'],
     'edition'    => ['label' => 'Edition', 'group' => 'basics', 'type' => 'text', 'col' => 'edition'],
     'console'    => ['label' => 'Console', 'group' => 'basics', 'type' => 'select', 'col' => 'console', 'always' => true, 'required' => true, 'options' => 'console_options', 'sync' => ['steam', 'nintendo', 'ea', 'rockstar']],
+    'madeFor'    => ['label' => 'Made for', 'group' => 'basics', 'type' => 'select', 'options' => 'console_options', 'help' => 'The system the game was made for, when it stands on another\'s shelf: Pokémon Blue, a Game Boy game, with the Game Boy Color\'s. The site names it; the shelf, the filters and the counts keep the console.'],
     'region'     => ['label' => 'Region', 'group' => 'basics', 'type' => 'select', 'col' => 'region', 'always' => true, 'options' => 'region_options', 'sync' => ['steam', 'nintendo', 'ea', 'rockstar']],
     'released'   => ['label' => 'Released', 'group' => 'basics', 'type' => 'text', 'col' => 'released', 'always' => true, 'help' => 'YYYY-MM-DD, or YYYY-MM, or YYYY.', 'sync' => ['steam']],
     'dateSource' => ['label' => 'Release date from', 'group' => 'basics', 'type' => 'select', 'col' => 'date_source', 'always' => true, 'options' => ['manual' => 'Typed in', 'steam' => 'Steam', 'libretro-database' => 'libretro database'], 'sync' => ['steam', 'nintendo']],
@@ -57,6 +58,8 @@ const FIELDS = [
 
     // ---- this copy ----
     'format'       => ['label' => 'Format', 'group' => 'copy', 'type' => 'select', 'col' => 'format', 'always' => true, 'options' => 'format_options', 'sync' => ['steam', 'nintendo', 'ea', 'rockstar']],
+    'price'        => ['label' => 'Price paid', 'group' => 'copy', 'type' => 'text', 'private' => true, 'help' => 'What you paid for it, as a number: 79.95. Only in the admin: the site never shows it.'],
+    'priceCurrency' => ['label' => 'Price currency', 'group' => 'copy', 'type' => 'select', 'private' => true, 'options' => 'currency_options', 'help' => 'The currency of Price paid. Only in the admin.'],
     'barcode'      => ['label' => 'Barcode', 'group' => 'copy', 'type' => 'text', 'help' => 'The number under the barcode on the box (EAN-13 or UPC): it tells one print from another, and the back of the case on the site prints it.'],
     'launcher'     => ['label' => 'Launcher', 'group' => 'copy', 'type' => 'select', 'col' => 'launcher', 'options' => 'launcher_options', 'help' => 'Where a PC copy activates.', 'sync' => ['steam', 'ea', 'rockstar']],
     'alsoDigital'  => ['label' => 'Also in a launcher', 'group' => 'copy', 'type' => 'bool', 'col' => 'also_digital', 'help' => 'A disc whose code was redeemed in Steam or the EA app.'],
@@ -174,6 +177,8 @@ const LAUNCHERS = [
     'gog' => 'GOG Galaxy', 'ubisoft' => 'Ubisoft Connect', 'none' => 'DRM-free disc',
 ];
 
+const CURRENCIES = ['AUD' => 'AUD — Australian dollar', 'BRL' => 'BRL — Brazilian real', 'USD' => 'USD — US dollar', 'EUR' => 'EUR — Euro', 'GBP' => 'GBP — Pound sterling', 'JPY' => 'JPY — Japanese yen', 'NZD' => 'NZD — New Zealand dollar'];
+
 const PACKS = ['Base game', 'Expansion Pack', 'Game Pack', 'Stuff Pack', 'Kit', 'Collection', 'World', 'Parts Pack', 'Extra'];
 
 function console_options(): array { return CONSOLES; }
@@ -181,6 +186,7 @@ function region_options(): array { return REGIONS; }
 function format_options(): array { return FORMATS; }
 function launcher_options(): array { return LAUNCHERS; }
 function pack_options(): array { return array_combine(PACKS, PACKS); }
+function currency_options(): array { return CURRENCIES; }
 
 function console_name(?string $id): string
 {

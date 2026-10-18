@@ -30,6 +30,7 @@ $checks = [
     'rockstar.json'   => fn () => json_decode(platform_json('rockstar') ?? 'null', true),
     'sims-wants.json' => fn () => wants_json('sims'),
     'gta.json'        => fn () => gta_json(),
+    'pokemon.json'    => fn () => pokemon_json(),
 ];
 
 $failed = 0;
