@@ -28,7 +28,11 @@
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
-html { background: var(--bg); overflow-x: clip; }
+/* room for the scrollbar kept from the start, so the page doesn't move over when the shelf makes it scroll */
+html { background: var(--bg); overflow-x: clip; scrollbar-gutter: stable; }
+/* until js/app.js has the games, nothing stands under the top bar (index.php sets booting): it all comes in at
+   once, drawn where it stands, instead of the footer and an empty bookcase being pushed down by it */
+html.booting :is(#shell, .tools, .case-wrap, #checklist, footer) { display: none; }
 body { margin: 0; min-height: 100vh; color: var(--text); font-family: var(--font-ui); -webkit-font-smoothing: antialiased; overflow-x: clip;
   background: transparent; }
 /* black with fine diagonal pinstripes, held still behind the page so it looks the same in every view and on

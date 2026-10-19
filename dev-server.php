@@ -22,7 +22,12 @@ if ($name === '') {
     $name = 'index';
 }
 
-if (preg_match('#^api/([A-Za-z0-9_]+)$#', $name, $m) && is_file("$public/api/$m[1].php")) {
+if (preg_match('#^covers/_t/(full|[0-9]{2,3})/([A-Za-z0-9_-]+/[A-Za-z0-9._-]+)-([0-9]+)\.webp$#', $name, $m)) {
+    // a cover's smaller copy not made yet, as in .htaccess
+    $_GET = ['s' => $m[1], 'f' => $m[2], 'v' => $m[3]];
+    $script = "$public/thumb.php";
+    $name = 'thumb';
+} elseif (preg_match('#^api/([A-Za-z0-9_]+)$#', $name, $m) && is_file("$public/api/$m[1].php")) {
     $script = "$public/api/$m[1].php";
     $name = "api/$m[1]";
 } elseif (preg_match('#^admin/([A-Za-z0-9_]+)$#', $name, $m) && is_file("$public/admin_$m[1].php")) {

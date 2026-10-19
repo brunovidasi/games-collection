@@ -21,6 +21,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # The site's scripts and stylesheets go up minified (about a third smaller gzipped); the repo keeps them
+      # as written. Only the checkout here is changed. Each file stays a file of its own, and esbuild keeps the
+      # names a script declares at its top (dropdown.js's dropdown()), which the others call.
+      - name: Minify the CSS and JS
+        run: |
+          for f in public/js/*.js public/css/*.css; do
+            npx --yes esbuild@0.24.0 "$f" --minify --outfile="$f" --allow-overwrite --log-level=warning
+          done
+
       # FTP_SERVER_DIR (a repository variable) is only needed for an FTP account
       # whose root is not the hosting account's: one locked to the games folder
       # uses ./

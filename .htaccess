@@ -62,6 +62,11 @@ DirectoryIndex index.php index.html
     RewriteCond %{DOCUMENT_ROOT}/games/public/$1 !-d
     RewriteRule ^([A-Za-z0-9-]+(?:/[A-Za-z0-9-]+)?)/?$ public/index.php [L]
 
+    # A cover's smaller copy (js/cases.js asks for each cover at the height it draws it): a plain file once
+    # made, and made by public/thumb.php the first time it is asked for.
+    RewriteCond %{DOCUMENT_ROOT}/games/public/covers/_t/$1/$2-$3.webp !-f
+    RewriteRule ^covers/_t/(full|[0-9]{2,3})/([A-Za-z0-9_-]+/[A-Za-z0-9._-]+)-([0-9]+)\.webp$ public/thumb.php?s=$1&f=$2&v=$3 [L]
+
     # Everything else (css, js, fonts, covers, prototypes) is served from public/.
     RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>
@@ -76,6 +81,19 @@ ErrorDocument 500 /games/500
     Header always set X-Content-Type-Options "nosniff"
     Header always set X-Frame-Options "DENY"
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # How long a browser keeps what it fetched. The parent site's rules have code revalidated on every load and
+    # pictures kept a week; these come after them (an <If> is merged last), so they win here.
+    # A file asked for with its version (asset_url()'s ?v=, and the covers' in api/games) is a new address
+    # whenever the file changes, so that address never needs asking about again.
+    <If "%{QUERY_STRING} =~ /(^|&)v=[0-9]/ && %{REQUEST_URI} =~ /\.(css|js|svg|jpe?g|png|webp|gif)$/">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </If>
+    # so is a cover's smaller copy, whose name has its cover's time in it; and the fonts, which never change
+    # (a new one gets a new name)
+    <If "%{REQUEST_URI} =~ m#/covers/_t/.+\.webp$# || %{REQUEST_URI} =~ m#/fonts/[^/]+\.woff2$#">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </If>
 </IfModule>
 
 # The database is never downloadable, even without mod_rewrite. data/ has its own deny-all too.

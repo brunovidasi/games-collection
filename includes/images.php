@@ -132,6 +132,71 @@ function measure_cover_file(string $relPath): ?array
     return ['ratio' => round(imagesx($img) / imagesy($img), 4), 'colors' => image_palette($img)];
 }
 
+/* ---------- the smaller copies the shelf draws ---------- */
+
+// the heights a cover's smaller copies come in (THUMBS in js/cases.js); 'full' is the picture's own height
+const THUMB_HEIGHTS = [100, 150, 220, 330, 480];
+
+/**
+ * A cover's copy as WebP at one of THUMB_HEIGHTS (never enlarged), made the first time it is asked for
+ * (public/thumb.php) and saved where it was asked for, covers/_t/<height>/<the cover's path>-<its time>.webp,
+ * so Apache serves it as a plain file from then on. A newer copy of the same cover clears out the older ones.
+ * Returns its path on disk, or null when there is no such cover or GD can't write WebP.
+ */
+function cover_thumb(string $step, string $rel, int $version): ?string
+{
+    if ($step !== 'full' && !in_array((int) $step, THUMB_HEIGHTS, true)) {
+        return null;
+    }
+    // one folder deep, as every cover is (covers/ps2/final-fantasy-x.jpg): nothing that climbs out of covers/
+    if (!preg_match('#^[A-Za-z0-9_-]+/[A-Za-z0-9][A-Za-z0-9._-]*\.(jpe?g|png|webp|gif)$#', $rel) || str_starts_with($rel, '_t/')) {
+        return null;
+    }
+    $src = public_dir() . "/covers/$rel";
+    if (!is_file($src) || !function_exists('imagewebp')) {
+        return null;
+    }
+    $out = public_dir() . "/covers/_t/$step/$rel-$version.webp";
+    if (is_file($out)) {
+        return $out;
+    }
+
+    $img = image_from_bytes((string) file_get_contents($src));
+    $w = imagesx($img);
+    $h = imagesy($img);
+    $outH = $step === 'full' ? $h : min((int) $step, $h);
+    if ($outH !== $h) {
+        $outW = max(1, (int) round($w * $outH / $h));
+        $small = imagecreatetruecolor($outW, $outH);
+        imagealphablending($small, false);
+        imagesavealpha($small, true);
+        imagecopyresampled($small, $img, 0, 0, 0, 0, $outW, $outH, $w, $h);
+        $img = $small;
+    } elseif (!imageistruecolor($img)) {
+        imagepalettetotruecolor($img);
+    }
+
+    $dir = dirname($out);
+    if (!is_dir($dir) && !@mkdir($dir, 0755, true) && !is_dir($dir)) {
+        return null;
+    }
+    // written beside it and moved into place, so two asking at once never see half a file
+    $tmp = "$out." . getmypid() . '.tmp';
+    if (!imagewebp($img, $tmp, 80)) {
+        @unlink($tmp);
+        return null;
+    }
+    @chmod($tmp, 0644);
+    rename($tmp, $out);
+    foreach (glob($dir . '/' . basename($rel) . '-*.webp') ?: [] as $old) {
+        if ($old !== $out) {
+            @unlink($old);
+        }
+    }
+
+    return $out;
+}
+
 /** Where a copy's cover goes: covers/<console>/<the id without the console>.jpg, as the old tools named them. */
 function cover_path_for(array $game, string $suffix = ''): string
 {

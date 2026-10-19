@@ -110,7 +110,21 @@
     return v;
   }
   const cls = (g, L) => `k-${styleOf(g)}${g.big ? ' big' : ''}${g.kinect ? ' kinect' : ''}${g.platinum ? ' platinum' : ''}${g.caseColor ? ' tinted' : ''}${g.clearCase ? ' clear' : ''}${g.steelbook ? ' steel' : ''}${g.spineColor ? ' own-spine' : ''} kind-${L.kind}`;
-  const img = (g, c = '', lazy = true) => g.cover ? `<img class="${c}" src="${esc(g.cover.file)}" alt="" ${lazy ? 'loading="lazy"' : ''} decoding="async" draggable="false">` : '';
+  /* ---------- a picture at the size it is drawn ----------
+     A cover's picture is fetched as a WebP copy (thumb.php makes it on the server the first time it is asked
+     for) at the height it is drawn at, h px: the smallest of THUMBS that is that tall on this screen, or the
+     picture's own size ('full') when it is drawn bigger, as in the spotlight (and app.js's warm() fetches
+     the full one ahead of it). A picture that isn't one of the covers, or isn't on the server (no ?v=), is
+     fetched as it is. */
+  const THUMBS = [100, 150, 220, 330, 480];
+  function thumb(url, h) {
+    const m = /^(.*\/covers\/)([^/?]+\/[^/?]+)\?v=(\d+)$/.exec(url || '');
+    if (!m) return url;
+    const need = h * Math.min(window.devicePixelRatio || 1, 3);
+    const step = h >= 300 ? 'full' : THUMBS.find(t => t >= need) || 'full';
+    return `${m[1]}_t/${step}/${m[2]}-${m[3]}.webp`;
+  }
+  const img = (g, h, c = '', lazy = true) => g.cover ? `<img class="${c}" src="${esc(thumb(g.cover.file, h))}" alt="" ${lazy ? 'loading="lazy"' : ''} decoding="async" draggable="false">` : '';
   function el(html) {
     const t = document.createElement('template');
     t.innerHTML = html.trim();
@@ -132,7 +146,7 @@
   const drawPlat = g => g.platinum && styleOf(g) === 'ps2' && !/-platinum\.\w+(\?|$)/.test(g.cover.file);
   function frontHTML(g, L, lazy) {
     const inner = g.cover
-      ? `<div class="ins${g.cover.plain ? ' plain' : ''}">${g.cover.plain ? `<div class="band">${LOGO[styleOf(g)]}</div>` : ''}${img(g, 'scan', lazy)}${drawPlat(g) ? PLAT : ''}</div>`
+      ? `<div class="ins${g.cover.plain ? ' plain' : ''}">${g.cover.plain ? `<div class="band">${LOGO[styleOf(g)]}</div>` : ''}${img(g, L.ih, 'scan', lazy)}${drawPlat(g) ? PLAT : ''}</div>`
       : `<div class="ins ph">
           <div class="band">${LOGO[styleOf(g)]}</div>
           <div class="phc"><b class="pht">${esc(g.title)}</b><i class="phr"></i><span class="phs">${year(g)}${g.publisher ? ' · ' + esc(g.publisher) : ''}</span></div>
@@ -245,7 +259,7 @@
 
   function spineHTML(g, L) {
     // a picture of the real side (a box whose side is printed in its own way: The Sims 3 Collector's Edition's)
-    if (g.cover && g.cover.spine && g.format !== 'digital') return `<div class="sp ${cls(g, L)} photo" style="${vars(g, L)}"><img class="scan" src="${esc(g.cover.spine)}" alt="" loading="lazy" decoding="async" draggable="false"></div>`;
+    if (g.cover && g.cover.spine && g.format !== 'digital') return `<div class="sp ${cls(g, L)} photo" style="${vars(g, L)}"><img class="scan" src="${esc(thumb(g.cover.spine, L.h))}" alt="" loading="lazy" decoding="async" draggable="false"></div>`;
     const P = spineOf(g);
     if (P && g.format !== 'digital') return printedSpineHTML(g, L, P);
     const Ln = g.launcher && window.LAUNCHERS[g.launcher];
@@ -263,9 +277,9 @@
   function backHTML(g, L) {
     const R = window.REGIONS[g.region] || { name: g.region };
     // a picture of the real back (a SteelBook's), else a back printed from the game's details
-    if (g.cover && g.cover.back) return `<div class="bk ${cls(g, L)}" style="${vars(g, L)}"><div class="ins"><img class="scan" src="${esc(g.cover.back)}" alt="" loading="lazy" decoding="async" draggable="false"></div><div class="gl"></div></div>`;
+    if (g.cover && g.cover.back) return `<div class="bk ${cls(g, L)}" style="${vars(g, L)}"><div class="ins"><img class="scan" src="${esc(thumb(g.cover.back, L.ih))}" alt="" loading="lazy" decoding="async" draggable="false"></div><div class="gl"></div></div>`;
     return `<div class="bk ${cls(g, L)}" style="${vars(g, L)}">
-      <div class="ins${g.cover ? '' : ' ph'}">${img(g, 'blur')}
+      <div class="ins${g.cover ? '' : ' ph'}">${img(g, L.ih / 4, 'blur')}
         <div class="band">${LOGO[styleOf(g)]}</div>
         <div class="bkin">
           <div class="bkt">${esc(g.title)}</div>
@@ -814,10 +828,11 @@
     }).join('');
   }
   // a GBA label: the box art small in the middle over a wash of its colours, the seal and the code
-  function smallLabel(g, keep) {
+  // (h: the label's height in px)
+  function smallLabel(g, keep, h) {
     const r = (g.cover.ratio || 1) * keep;
-    return `<img class="wash" src="${esc(g.cover.file)}" alt="" loading="lazy" decoding="async" draggable="false">
-      <div class="art" style="aspect-ratio:${r.toFixed(3)}">${img(g)}</div>
+    return `<img class="wash" src="${esc(thumb(g.cover.file, h / 4))}" alt="" loading="lazy" decoding="async" draggable="false">
+      <div class="art" style="aspect-ratio:${r.toFixed(3)}">${img(g, h)}</div>
       <i class="seal"></i><b class="code">AGB-XXXX-${cardRegion(g)}</b>`;
   }
 
@@ -826,7 +841,8 @@
     const [x, y, lw, lh] = T.label;
     // Japanese box art has no name strip down the side
     const [cl, cr, ct = 0, cb = 0] = T.crop && window.REGIONS[g.region]?.std !== 'NTSC-J' ? T.crop : [0, 0], keep = 1 - cl - cr, keepY = 1 - ct - cb;
-    const label = !g.cover ? `<span>${esc(g.title)}</span>` : T.small ? smallLabel(g, keep) : img(g);
+    // the box art stands taller than the label by what the label crops off its top and bottom
+    const label = !g.cover ? `<span>${esc(g.title)}</span>` : T.small ? smallLabel(g, keep, lh * s) : img(g, lh * s / keepY);
     // a cartridge that came in its own colour (a yellow Pokémon Yellow)
     const c = /^#[0-9a-f]{6}$/i.test(g.cartColor || '') ? g.cartColor : T.c, S = c === T.c ? T : { ...T, c };
     // the real sticker (cover.label, cut from a photo of the card by tools/fetch-cards.mjs): its own logo strip, art
@@ -834,7 +850,7 @@
     // (an unofficial cartridge's own label, g.cartLabel, lies where it was stuck: [left, top, right, bottom] in mm)
     const sticker = g.cover && g.cover.label && (g.cartLabel || T.sticker);
     const lab = sticker
-      ? `<div class="cstk" style="left:${pct(sticker[0], T.w)};top:${pct(sticker[1], T.h)};width:${pct(sticker[2] - sticker[0], T.w)};height:${pct(sticker[3] - sticker[1], T.h)};${g.cartLabel ? 'border-radius:2.5% / 6%' : T.stickerShape || ''}"><img src="${esc(g.cover.label)}" alt="" loading="lazy" decoding="async" draggable="false"></div>`
+      ? `<div class="cstk" style="left:${pct(sticker[0], T.w)};top:${pct(sticker[1], T.h)};width:${pct(sticker[2] - sticker[0], T.w)};height:${pct(sticker[3] - sticker[1], T.h)};${g.cartLabel ? 'border-radius:2.5% / 6%' : T.stickerShape || ''}"><img src="${esc(thumb(g.cover.label, (sticker[3] - sticker[1]) * s))}" alt="" loading="lazy" decoding="async" draggable="false"></div>`
       : `<div class="clab${T.small && g.cover ? ' small' : ''}" style="left:${pct(x, T.w)};top:${pct(y, T.h)};width:${pct(lw, T.w)};height:${pct(lh, T.h)};--lp:${T.pos};--liw:${pct(1, keep)};--lix:${pct(-cl, keep)};--lih:${pct(1, keepY)};--liy:${pct(-ct, keepY)}">${label}</div>`;
     // a clear cartridge: its board standing inside, one picture for each side, and the far side of the shell as
     // seen through the near one (they come first, so that where the cartridge is drawn flat they lie under its faces)
@@ -1086,7 +1102,7 @@
       const { w: W, h: H, d: D } = L, C = g.cover;
       // db: the card holder's depth at the back; hs: the sleeve's height; wy: the sleeve's top; cd: the clear part's depth
       const db = 18 * s, hs = 110 * s, wy = H - hs, cd = D - db;
-      const bg = (f, w, pos) => `background:url('${esc(f)}') ${pos} / ${px(w)} ${px(H)} no-repeat`;
+      const bg = (f, w, pos) => `background:url('${esc(thumb(f, H))}') ${pos} / ${px(w)} ${px(H)} no-repeat`;
       // the plumbob: its middle 52 mm down, halfway between the window and the panel, turned a little
       const lift = 118 * s, os = 0.64;
       const parts = [
@@ -1126,7 +1142,7 @@
       const y0 = .5 * s, bh = H - s, ym = H / 2, bw = W - 2 * t, bd = D - 2 * t;
       // the body between the boards, set in a little from their edges (not on the spine side)
       const bx0 = t + .3 * s, bx1 = W - t - 1.5 * s, by0 = y0 + 1.5 * s, by1 = H - y0 - 1.5 * s, bz = bd / 2 - bt;
-      const img = (f, w, h, pos = '0 0') => `background:url('${esc(f)}') ${pos} / ${px(w)} ${px(h)} no-repeat`;
+      const img = (f, w, h, pos = '0 0') => `background:url('${esc(thumb(f, h))}') ${pos} / ${px(w)} ${px(h)} no-repeat`;
       const gold = 'm-gold';
       const sleeve = [
         part('m-sl', W, H, [W / 2, ym, D / 2], '', img(C.file, W, H)),
@@ -1285,7 +1301,7 @@
     if (MODELS[g.model]) return modelBox(g, s);
     const L = layout(g, s);
     // a picture of the real right side, when there is one
-    const side = g.cover && g.cover.side ? ` style="background:url('${esc(g.cover.side)}') center / 100% 100%"` : '';
+    const side = g.cover && g.cover.side ? ` style="background:url('${esc(thumb(g.cover.side, L.h))}') center / 100% 100%"` : '';
     return assemble(el(`<div class="bx slab ${cls(g, L)}" style="${vars(g, L)}">
       <div class="fc f-front">${frontHTML(g, L, solid)}</div>
       <div class="fc f-left">${spineHTML(g, L)}</div>
@@ -1303,7 +1319,7 @@
     // spine and the walls round it with it, the back keeps the other half
     const split = L.kind !== 'box';
     // a cardboard box photographed all round: its right side and its top printed as they are (cover.side, cover.top)
-    const pic = f => g.cover && g.cover[f] ? ` style="background:url('${esc(g.cover[f])}') center / 100% 100%"` : '';
+    const pic = f => g.cover && g.cover[f] ? ` style="background:url('${esc(thumb(g.cover[f], L.h))}') center / 100% 100%"` : '';
     const b = el(`<div class="bx ${cls(g, L)}" style="${vars(g, L)}">
       <div class="fc f-tray"><div class="tray">${mediaHTML(g, s)}</div></div>
       <div class="fc f-front"><div class="leaf">${frontHTML(g, L, false)}<div class="inner"><div class="manual"><div class="mt">${esc(g.title)}</div><div class="ml">${MANUAL}</div></div></div>${split ? `<div class="lsp">${spineHTML(g, L)}</div><i class="edge lw lw-l"></i><i class="edge lw lw-r"></i><i class="edge lw lw-t"></i><i class="edge lw lw-b"></i>` : ''}</div></div>
@@ -1375,5 +1391,5 @@
   // a loose cartridge that shows its title on its top edge (or a tag with it), so it can stand on its side on the shelf
   const showsTop = g => { const T = CART[mediaType(g)]; return !!T && titledTop(g, T); };
 
-  window.Case = { dims, layout, front, spine, bar, box, slab, cart, cartSize, top, topSize, showsTop, isCart, date, year, esc, styleOf };
+  window.Case = { dims, layout, front, spine, bar, box, slab, cart, cartSize, top, topSize, showsTop, isCart, date, year, esc, styleOf, thumb };
 })();

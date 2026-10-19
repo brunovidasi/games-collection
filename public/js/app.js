@@ -285,7 +285,7 @@
     cs.addEventListener('click', e => { if (performance.now() - csDragged < 100) { e.preventDefault(); e.stopImmediatePropagation(); } }, true);
     addEventListener('resize', edges);
     cs.edges = edges;
-    edges();
+    requestAnimationFrame(edges);
     let t;
     $('#q').addEventListener('input', e => { clearTimeout(t); t = setTimeout(() => { state.q = e.target.value; changed(); }, 120); });
     $('#sort').addEventListener('change', e => { if (MENU[e.target.value]) setSort(MENU[e.target.value]); });
@@ -406,7 +406,8 @@
   function warm(g) {
     if (!g?.cover || warmed.has(g)) return;
     warmed.add(g);
-    Object.values(g.cover).forEach(f => { if (typeof f === 'string' && /\.(jpe?g|png|webp|avif|gif)(\?|$)/i.test(f)) new Image().src = f; });
+    // the full-size copies, as the spotlight draws them (Case.thumb)
+    Object.values(g.cover).forEach(f => { if (typeof f === 'string' && /\.(jpe?g|png|webp|avif|gif)(\?|$)/i.test(f)) new Image().src = Case.thumb(f, Infinity); });
   }
   host.addEventListener('pointerover', e => {
     const item = e.target.closest('[data-id]');
@@ -508,9 +509,12 @@
 
   // every cover facing out in the view just drawn (a case's front, a loose cartridge's label) is fetched now,
   // not only as it nears the screen, so none stands blank while it scrolls in. A frame and a tick later, so
-  // the ones on screen are asked for first
+  // the ones on screen are asked for first; and while the page is still loading (its first drawing), only once
+  // it has loaded and the browser is idle, so the rest never hold up what is on screen
   function fetchFaces(root) {
-    requestAnimationFrame(() => setTimeout(() => $$('.cv img, .cf img', root).forEach(im => { im.loading = 'eager'; })));
+    const all = () => $$('.cv img, .cf img', root).forEach(im => { im.loading = 'eager'; });
+    if (document.readyState === 'complete') requestAnimationFrame(() => setTimeout(all));
+    else addEventListener('load', () => (window.requestIdleCallback || setTimeout)(all), { once: true });
   }
 
   /* ---------- the bookcase ---------- */
@@ -665,10 +669,9 @@
       host.append(shelf);
     });
 
-    // a brass label under where each console starts, nudged so none overlap
-    let lastPlates = null, edge = 0;
-    labels.forEach(([btn, g, plates]) => {
-      if (plates !== lastPlates) { edge = -Infinity; lastPlates = plates; }
+    // a brass label under where each console starts, nudged so none overlap: all of them put in first, then
+    // where each starts and how wide it is read at once, so the page is laid out once rather than once a label
+    const placed = labels.map(([btn, g, plates]) => {
       const p = document.createElement('div');
       p.className = 'plate';
       // in the colour of the console's family, as in the filter: red Nintendo, blue PlayStation, green Xbox
@@ -677,9 +680,14 @@
       p.textContent = groupOf(g).label;
       p.title = groupOf(g).name;
       plates.append(p);
-      const left = Math.max(btn.offsetLeft - 14, edge + 4);
+      return [btn, p, plates];
+    }).map(([btn, p, plates]) => [p, plates, btn.offsetLeft, p.offsetWidth]);
+    let lastPlates = null, edge = 0;
+    placed.forEach(([p, plates, at, width]) => {
+      if (plates !== lastPlates) { edge = -Infinity; lastPlates = plates; }
+      const left = Math.max(at - 14, edge + 4);
       p.style.left = left + 'px';
-      edge = left + p.offsetWidth;
+      edge = left + width;
     });
   }
 
@@ -2554,6 +2562,9 @@
   const ONLINE = ['data/steam.json', 'data/psn.json', 'data/nintendo.json', 'data/xbox.json', 'data/ea.json', 'data/rockstar.json'].map(u => json(u).catch(() => null));
   Promise.all([...['data/games.json', ...EXTRA].map(json), ...ONLINE])
     .then(([db, ...more]) => {
+      // what stands under the top bar shows from here (index.php keeps it out until then), drawn in the same
+      // frame as the shelf, so nothing on the page is pushed down as it comes in
+      document.documentElement.classList.remove('booting');
       const [steam, psn, nintendo, xbox, ea, rockstar] = more.splice(-6);
       const file = Object.fromEntries(EXTRA.map((u, i) => [u, more[i]]));
       // games marked hidden stay in the list, but off every shelf and count
@@ -2620,6 +2631,7 @@
     })
     .catch(err => {
       console.error(err);
+      document.documentElement.classList.remove('booting');
       host.innerHTML = `<div class="empty-msg"><b>The shelf couldn't load</b>The games didn't load. Try again in a moment.</div>`;
     });
 })();

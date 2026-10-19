@@ -49,7 +49,7 @@ $brand = $accent !== '' && str_ends_with($name, $accent)
 header('Content-Type: text/html; charset=utf-8');
 ?>
 <!DOCTYPE html>
-<html lang="en"<?= $themed ? ' class="collection ' . e($col) . '"' : '' ?>>
+<html lang="en" class="booting<?= $themed ? ' collection ' . e($col) : '' ?>">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -65,6 +65,11 @@ header('Content-Type: text/html; charset=utf-8');
 <link rel="stylesheet" href="<?= e(asset_url('css/gta.css')) ?>">
 <link rel="stylesheet" href="<?= e(asset_url('css/pokemon.css')) ?>">
 <link rel="stylesheet" href="<?= e(asset_url('css/mario.css')) ?>">
+<?php // the games, and what the collections and the platforms add to them, asked for with the page (after what it needs
+// to draw) rather than once js/app.js has loaded: the addresses it asks for (json() there), so it is handed these ?>
+<?php foreach (['games', 'sims_wants', 'gta', 'pokemon', 'mario', 'steam', 'psn', 'nintendo', 'xbox', 'ea', 'rockstar'] as $feed): ?>
+<link rel="preload" href="<?= e($config['api'] . $feed . '?v=' . $config['version']) ?>" as="fetch" crossorigin>
+<?php endforeach; ?>
 </head>
 <body>
 
