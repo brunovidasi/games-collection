@@ -25,6 +25,11 @@ DirectoryIndex index.php index.html
     RewriteCond %{HTTP:X-Forwarded-Proto} !=https
     RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
+    # A file asked for with its version (?v=) is marked VERSIONED, for the Cache-Control further down (an
+    # env var, since LiteSpeed has no <If>). Both names are set: an internal rewrite renames it REDIRECT_….
+    RewriteCond %{QUERY_STRING} (^|&)v=[0-9]
+    RewriteRule \.(css|js|svg|jpe?g|png|webp|gif)$ - [E=VERSIONED:1]
+
     # /public/… to the canonical URL. THE_REQUEST is the client's own
     # request line, untouched by the rewrites below.
     RewriteCond %{THE_REQUEST} \s/public/ [NC]
@@ -86,8 +91,8 @@ ErrorDocument 500 /500
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
 
     # How long a browser keeps what it fetched. Code is revalidated on every load and pictures are kept a
-    # week (the rules this app had from brunovida.si's .htaccess when it lived under it); the <If>s below come
-    # after them (an <If> is merged last), so they win.
+    # week (the rules this app had from brunovida.si's .htaccess when it lived under it); the sections below
+    # come after them, so they win. No <If> or expr=: the host runs LiteSpeed, which ignores them.
     <FilesMatch "\.(html?|shtml|js|mjs|css|json|pdf)$">
         Header set Cache-Control "no-cache"
     </FilesMatch>
@@ -96,14 +101,15 @@ ErrorDocument 500 /500
     </FilesMatch>
     # A file asked for with its version (asset_url()'s ?v=, and the covers' in api/games) is a new address
     # whenever the file changes, so that address never needs asking about again.
-    <If "%{QUERY_STRING} =~ /(^|&)v=[0-9]/ && %{REQUEST_URI} =~ /\.(css|js|svg|jpe?g|png|webp|gif)$/">
+    <FilesMatch "\.(css|js|svg|jpe?g|png|webp|gif)$">
+        Header set Cache-Control "public, max-age=31536000, immutable" env=VERSIONED
+        Header set Cache-Control "public, max-age=31536000, immutable" env=REDIRECT_VERSIONED
+    </FilesMatch>
+    # So is a cover's smaller copy, whose name has its cover's time in it (cover.jpg-1792127385.webp), and a
+    # font, which never changes (a new one gets a new name).
+    <FilesMatch "(\.(jpe?g|png|webp|gif)-[0-9]+\.webp|\.woff2)$">
         Header set Cache-Control "public, max-age=31536000, immutable"
-    </If>
-    # so is a cover's smaller copy, whose name has its cover's time in it; and the fonts, which never change
-    # (a new one gets a new name)
-    <If "%{REQUEST_URI} =~ m#/covers/_t/.+\.webp$# || %{REQUEST_URI} =~ m#/fonts/[^/]+\.woff2$#">
-        Header set Cache-Control "public, max-age=31536000, immutable"
-    </If>
+    </FilesMatch>
 </IfModule>
 
 # The database is never downloadable, even without mod_rewrite. data/ has its own deny-all too.
