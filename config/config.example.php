@@ -4,13 +4,14 @@
  * Copy this to config/config.php for local development (it's gitignored).
  *
  * ON THE SERVER, DO NOT PUT THIS FILE HERE. The repo is public and the deployed
- * folder sits under public_html, so the key that unlocks the saved sign-ins
+ * folder is web-reachable, so the key that unlocks the saved sign-ins
  * must be neither committable nor web-reachable.
  *
- * Instead, create a directory named 'games-instance' ABOVE public_html:
+ * Instead, create a directory named 'games-instance' in the hosting account's home,
+ * outside every web root:
  *
- *   /home/<user>/domains/<domain>/games-instance/config.php   <- this file's contents
- *   /home/<user>/domains/<domain>/games-instance/data/        <- SQLite database
+ *   /home/<user>/games-instance/config.php   <- this file's contents
+ *   /home/<user>/games-instance/data/        <- SQLite database
  *
  * The app walks up the directory tree to find it, so no absolute server path is
  * ever hardcoded in the repo. The admin dashboard's "About the site" card
@@ -49,7 +50,7 @@ return [
             'db_file'  => 'games.development.sqlite',
         ],
         'production' => [
-            'base_url' => 'https://brunovida.si/games',
+            'base_url' => 'https://games.brunovidasi.com',
             'debug'    => false,
             'data_dir' => null,
             'db_file'  => 'games.production.sqlite',
