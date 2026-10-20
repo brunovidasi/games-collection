@@ -91,7 +91,7 @@ final class Http
             CURLOPT_CONNECTTIMEOUT => 12,
             CURLOPT_TIMEOUT        => $options['timeout'] ?? 45,
             CURLOPT_FOLLOWLOCATION => $options['follow'] ?? true,
-            CURLOPT_USERAGENT      => $options['user_agent'] ?? "BrunosGameShelf/1.0 (+https://brunovida.si/games)",
+            CURLOPT_USERAGENT      => $options['user_agent'] ?? "BrunosGameShelf/1.0 (+https://games.brunovidasi.com)",
             CURLOPT_HTTPHEADER     => $headers,
             CURLOPT_ENCODING       => $options['encoding'] ?? '',
             CURLOPT_HEADERFUNCTION => function ($ch, string $line) use (&$respHeaders, &$cookies) {

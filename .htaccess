@@ -1,11 +1,9 @@
-# Bruno's Game Shelf, to be deployed at https://brunovida.si/games (public_html/games).
+# Bruno's Game Shelf, deployed at https://games.brunovidasi.com, whose
+# document root is this folder (/home/brunovidasi/games.brunovidasi.com).
 #
 # Every request is mapped into public/, the only folder that may be reachable
 # over HTTP, so the server's layout is the repo's. dev-server.php mirrors these
 # rules for PHP's built-in server.
-#
-# A parent .htaccess's rewrite rules are not inherited once this one turns the
-# RewriteEngine on.
 
 Options -Indexes
 DirectoryIndex index.php index.html
@@ -13,18 +11,29 @@ DirectoryIndex index.php index.html
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    # The URL path this app is mounted at.
-    RewriteBase /games/
+    # The app is mounted at the root of its own subdomain.
+    RewriteBase /
+
+    # One address: games.brunovida.si (the same folder) and the www. names go to
+    # games.brunovidasi.com, path and all. The sign-ins, the links and the cron URL
+    # are built from base_url, so the admin only works on that one.
+    RewriteCond %{HTTP_HOST} ^(www\.games\.brunovidasi\.com|(www\.)?games\.brunovida\.si)$ [NC]
+    RewriteRule ^ https://games.brunovidasi.com%{REQUEST_URI} [L,R=301,NE]
 
     # HTTPS only. The second condition stops a redirect loop behind a proxy that terminates TLS.
     RewriteCond %{HTTPS} !=on
     RewriteCond %{HTTP:X-Forwarded-Proto} !=https
     RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
-    # /games/public/… to the canonical URL. THE_REQUEST is the client's own
+    # A file asked for with its version (?v=) is marked VERSIONED, for the Cache-Control further down (an
+    # env var, since LiteSpeed has no <If>). Both names are set: an internal rewrite renames it REDIRECT_….
+    RewriteCond %{QUERY_STRING} (^|&)v=[0-9]
+    RewriteRule \.(css|js|svg|jpe?g|png|webp|gif)$ - [E=VERSIONED:1]
+
+    # /public/… to the canonical URL. THE_REQUEST is the client's own
     # request line, untouched by the rewrites below.
-    RewriteCond %{THE_REQUEST} \s/games/public/ [NC]
-    RewriteRule ^public/(.*)$ /games/$1 [L,R=301]
+    RewriteCond %{THE_REQUEST} \s/public/ [NC]
+    RewriteRule ^public/(.*)$ /$1 [L,R=301]
 
     # Stop here once inside public/: the rules re-run after every rewrite.
     RewriteRule ^public/ - [L]
@@ -34,37 +43,37 @@ DirectoryIndex index.php index.html
     RewriteRule ^$ public/index.php [L]
 
     # The JSON API: /api/games -> public/api/games.php
-    RewriteCond %{DOCUMENT_ROOT}/games/public/api/$1.php -f
+    RewriteCond %{DOCUMENT_ROOT}/public/api/$1.php -f
     RewriteRule ^api/([A-Za-z0-9_]+)$ public/api/$1.php [L,QSA]
 
     # The admin's pages: /admin/games -> public/admin_games.php
-    RewriteCond %{DOCUMENT_ROOT}/games/public/admin_$1.php -f
+    RewriteCond %{DOCUMENT_ROOT}/public/admin_$1.php -f
     RewriteRule ^admin/([A-Za-z0-9_]+)$ public/admin_$1.php [L,QSA]
 
     # Their old addresses, /admin_games and /admin_games.php, redirect there (GET only, as below).
     RewriteCond %{REQUEST_METHOD} =GET
-    RewriteCond %{DOCUMENT_ROOT}/games/public/admin_$1.php -f
-    RewriteRule ^admin_([A-Za-z0-9_]+)(?:\.php)?$ /games/admin/$1 [L,R=301,NE]
+    RewriteCond %{DOCUMENT_ROOT}/public/admin_$1.php -f
+    RewriteRule ^admin_([A-Za-z0-9_]+)(?:\.php)?$ /admin/$1 [L,R=301,NE]
 
     # The pages, linked without .php: /admin -> public/admin.php
-    RewriteCond %{DOCUMENT_ROOT}/games/public/$1.php -f
+    RewriteCond %{DOCUMENT_ROOT}/public/$1.php -f
     RewriteRule ^([A-Za-z0-9_]+)$ public/$1.php [L,QSA]
 
     # Old .php URLs redirect to the extensionless ones. GET only, since a 301
     # would turn a POST into a GET and drop its body. cron_sync keeps its .php:
     # its URL lives in a scheduler's config.
     RewriteCond %{REQUEST_METHOD} =GET
-    RewriteRule ^(?!cron_sync)([A-Za-z0-9_]+)\.php$ /games/$1 [L,R=301,NE]
+    RewriteRule ^(?!cron_sync)([A-Za-z0-9_]+)\.php$ /$1 [L,R=301,NE]
 
     # The shelf's own addresses, /wiiu, /sims, /sims/wiiu, /ps2-final-fantasy-x:
     # index.php draws them (and 404s what isn't one). A real file or folder wins.
-    RewriteCond %{DOCUMENT_ROOT}/games/public/$1 !-f
-    RewriteCond %{DOCUMENT_ROOT}/games/public/$1 !-d
+    RewriteCond %{DOCUMENT_ROOT}/public/$1 !-f
+    RewriteCond %{DOCUMENT_ROOT}/public/$1 !-d
     RewriteRule ^([A-Za-z0-9-]+(?:/[A-Za-z0-9-]+)?)/?$ public/index.php [L]
 
     # A cover's smaller copy (js/cases.js asks for each cover at the height it draws it): a plain file once
     # made, and made by public/thumb.php the first time it is asked for.
-    RewriteCond %{DOCUMENT_ROOT}/games/public/covers/_t/$1/$2-$3.webp !-f
+    RewriteCond %{DOCUMENT_ROOT}/public/covers/_t/$1/$2-$3.webp !-f
     RewriteRule ^covers/_t/(full|[0-9]{2,3})/([A-Za-z0-9_-]+/[A-Za-z0-9._-]+)-([0-9]+)\.webp$ public/thumb.php?s=$1&f=$2&v=$3 [L]
 
     # Everything else (css, js, fonts, covers, prototypes) is served from public/.
@@ -72,28 +81,35 @@ DirectoryIndex index.php index.html
 </IfModule>
 
 # The app's own error pages, through the rewrites above to public/404.php and
-# public/500.php, for this folder only (the parent site has its own). A PHP
-# fatal draws the same 500 page from includes/runtime.php.
-ErrorDocument 404 /games/404
-ErrorDocument 500 /games/500
+# public/500.php. A PHP fatal draws the same 500 page from includes/runtime.php.
+ErrorDocument 404 /404
+ErrorDocument 500 /500
 
 <IfModule mod_headers.c>
     Header always set X-Content-Type-Options "nosniff"
     Header always set X-Frame-Options "DENY"
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
 
-    # How long a browser keeps what it fetched. The parent site's rules have code revalidated on every load and
-    # pictures kept a week; these come after them (an <If> is merged last), so they win here.
+    # How long a browser keeps what it fetched. Code is revalidated on every load and pictures are kept a
+    # week (the rules this app had from brunovida.si's .htaccess when it lived under it); the sections below
+    # come after them, so they win. No <If> or expr=: the host runs LiteSpeed, which ignores them.
+    <FilesMatch "\.(html?|shtml|js|mjs|css|json|pdf)$">
+        Header set Cache-Control "no-cache"
+    </FilesMatch>
+    <FilesMatch "\.(png|jpe?g|gif|webp|avif|svg|ico|woff2?|ttf|otf|eot|mp3|mp4|webm)$">
+        Header set Cache-Control "public, max-age=604800"
+    </FilesMatch>
     # A file asked for with its version (asset_url()'s ?v=, and the covers' in api/games) is a new address
     # whenever the file changes, so that address never needs asking about again.
-    <If "%{QUERY_STRING} =~ /(^|&)v=[0-9]/ && %{REQUEST_URI} =~ /\.(css|js|svg|jpe?g|png|webp|gif)$/">
+    <FilesMatch "\.(css|js|svg|jpe?g|png|webp|gif)$">
+        Header set Cache-Control "public, max-age=31536000, immutable" env=VERSIONED
+        Header set Cache-Control "public, max-age=31536000, immutable" env=REDIRECT_VERSIONED
+    </FilesMatch>
+    # So is a cover's smaller copy, whose name has its cover's time in it (cover.jpg-1792127385.webp), and a
+    # font, which never changes (a new one gets a new name).
+    <FilesMatch "(\.(jpe?g|png|webp|gif)-[0-9]+\.webp|\.woff2)$">
         Header set Cache-Control "public, max-age=31536000, immutable"
-    </If>
-    # so is a cover's smaller copy, whose name has its cover's time in it; and the fonts, which never change
-    # (a new one gets a new name)
-    <If "%{REQUEST_URI} =~ m#/covers/_t/.+\.webp$# || %{REQUEST_URI} =~ m#/fonts/[^/]+\.woff2$#">
-        Header set Cache-Control "public, max-age=31536000, immutable"
-    </If>
+    </FilesMatch>
 </IfModule>
 
 # The database is never downloadable, even without mod_rewrite. data/ has its own deny-all too.

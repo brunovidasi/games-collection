@@ -6,9 +6,9 @@
  *
  *   php cron/thumbs.php
  *       every cover under public/covers, as the server names them when it runs there
- *   php cron/thumbs.php --from=https://brunovida.si/games/api/games
+ *   php cron/thumbs.php --from=https://games.brunovidasi.com/api/games
  *       here, for the server: the covers that site hands out, named by their time on the server (the ?v= its
- *       API gives each), so the copies made here are the ones it asks for. Then upload public/covers/_t by FTP.
+ *       API gives each), so the copies made here are the ones it asks for. Then copy public/covers/_t up to the server.
  *       A cover whose file here isn't the server's (another size) is left out and listed, to make there.
  */
 

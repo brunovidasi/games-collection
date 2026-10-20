@@ -438,7 +438,7 @@ foreach ($errors as $error) {
             <li>Name it anything (<i><?= e(site_settings()['name']) ?></i>). Under <i>Supported account types</i> pick <b>Personal Microsoft accounts only</b>.</li>
             <li>Under <i>Redirect URI</i> pick <b>Web</b> and give it:
               <div class="copy-row"><input type="text" readonly value="<?= e(XboxSync::appRedirectUri()) ?>" id="xboxRedirect" aria-label="Redirect URI"><button type="button" data-copy="xboxRedirect">Copy</button></div>
-              <?php if (!is_production()): ?><span class="muted small">When the site is online, add <code>https://brunovida.si/games/admin/connect</code> too (<i>Authentication</i> → <i>Add URI</i>).</span><?php endif; ?></li>
+              <?php if (!is_production()): ?><span class="muted small">When the site is online, add <code>https://games.brunovidasi.com/admin/connect</code> too (<i>Authentication</i> → <i>Add URI</i>).</span><?php endif; ?></li>
             <li><i>Register</i>, and copy the <b>Application (client) ID</b> from its page.</li>
             <li>In <i>Certificates &amp; secrets</i>, make a <i>New client secret</i> (24 months is the longest) and copy its <b>Value</b>. When it runs out, make a new one and save it here.</li>
           </ol>

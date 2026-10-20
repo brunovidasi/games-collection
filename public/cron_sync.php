@@ -3,8 +3,8 @@
 /**
  * The scheduled sync over HTTPS, for any scheduler that can open an address:
  *
- *   https://brunovida.si/games/cron_sync.php?token=…              every platform ticked in Settings → Sync
- *   https://brunovida.si/games/cron_sync.php?token=…&platform=psn  one
+ *   https://games.brunovidasi.com/cron_sync.php?token=…              every platform ticked in Settings → Sync
+ *   https://games.brunovidasi.com/cron_sync.php?token=…&platform=psn  one
  *
  * Closed until Settings → Sync makes a token, since a sync spends real API
  * calls. It answers at once and keeps working after the caller hangs up.

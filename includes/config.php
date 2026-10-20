@@ -103,7 +103,7 @@ function base_url(): string
     return rtrim(env_config()['base_url'], '/');
 }
 
-/** The URL path the app is mounted at: '/games/' in production, '/' locally. */
+/** The URL path the app is mounted at: '/' on games.brunovidasi.com and locally. */
 function app_path(): string
 {
     $path = parse_url(base_url(), PHP_URL_PATH);
@@ -111,7 +111,7 @@ function app_path(): string
     return $path ? rtrim($path, '/') . '/' : '/';
 }
 
-/** url('admin') -> '/games/admin' */
+/** url('admin') -> '/admin' */
 function url(string $path = ''): string
 {
     return app_path() . ltrim($path, '/');
