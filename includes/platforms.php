@@ -175,7 +175,7 @@ function set_platform_account(string $platform, array $data): void
 {
     db()->prepare("
         INSERT INTO platform_accounts (platform, data_json) VALUES (?, ?)
-        ON CONFLICT(platform) DO UPDATE SET data_json = excluded.data_json, synced_at = datetime('now')
+        ON DUPLICATE KEY UPDATE data_json = VALUES(data_json), synced_at = UTC_TIMESTAMP()
     ")->execute([$platform, to_json($data)]);
 }
 
@@ -204,8 +204,8 @@ function set_override(string $platform, string $collection, string $extId, strin
 {
     db()->prepare("
         INSERT INTO platform_overrides (platform, collection, ext_id, path, value_json, mode, base_json) VALUES (?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT(platform, collection, ext_id, path) DO UPDATE SET value_json = excluded.value_json, mode = excluded.mode,
-            base_json = excluded.base_json, updated_at = datetime('now')
+        ON DUPLICATE KEY UPDATE value_json = VALUES(value_json), mode = VALUES(mode),
+            base_json = VALUES(base_json), updated_at = UTC_TIMESTAMP()
     ")->execute([$platform, $collection, $extId, $path, to_json($value), $mode === 'until_sync' ? 'until_sync' : 'keep', to_json($base)]);
     touch_data();
 }

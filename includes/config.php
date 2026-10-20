@@ -149,7 +149,7 @@ function app_key(): string
     return (string) (app_config()['app_key'] ?? '');
 }
 
-/** Where the SQLite database, the caches and the logs live. */
+/** Where the caches and the logs live. */
 function data_dir(): string
 {
     static $path = null;
@@ -172,8 +172,19 @@ function data_dir(): string
     return $path;
 }
 
-/** One SQLite file per environment, so test data can't be mistaken for the real thing. */
-function db_path(): string
+/**
+ * The environment's MySQL database: one per environment, so test data can't be
+ * mistaken for the real thing.
+ */
+function db_config(): array
 {
-    return data_dir() . '/' . (env_config()['db_file'] ?? 'games.' . app_env() . '.sqlite');
+    $db = env_config()['db'] ?? [];
+
+    return [
+        'host' => (string) ($db['host'] ?? 'localhost'),
+        'port' => (int) ($db['port'] ?? 3306),
+        'name' => (string) ($db['name'] ?? ''),
+        'user' => (string) ($db['user'] ?? ''),
+        'pass' => (string) ($db['pass'] ?? ''),
+    ];
 }

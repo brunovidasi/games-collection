@@ -109,5 +109,5 @@ db_transaction(function (PDO $db) use ($games, $read) {
 });
 
 // the import is the starting point, not a change: the site keeps the old "updated" dates
-db()->exec("DELETE FROM settings WHERE key = 'data_changed_at'");
-echo "Imported into " . db_path() . "\n";
+db()->exec("DELETE FROM settings WHERE `key` = 'data_changed_at'");
+echo "Imported into the database " . db_config()['name'] . "\n";

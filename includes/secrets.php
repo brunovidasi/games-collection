@@ -71,7 +71,7 @@ function set_credential(string $platform, string $name, ?string $value): void
 
     db()->prepare("
         INSERT INTO credentials (platform, name, value_enc) VALUES (?, ?, ?)
-        ON CONFLICT(platform, name) DO UPDATE SET value_enc = excluded.value_enc, updated_at = datetime('now')
+        ON DUPLICATE KEY UPDATE value_enc = VALUES(value_enc), updated_at = UTC_TIMESTAMP()
     ")->execute([$platform, $name, encrypt_secret($value)]);
 }
 

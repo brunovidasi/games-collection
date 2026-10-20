@@ -182,7 +182,7 @@ function update_game(array $game, ?string $oldId = null): void
     $sets = implode(', ', array_map(fn ($c) => "$c = ?", array_keys($row)));
 
     db_transaction(function (PDO $db) use ($row, $sets, $oldId, $game) {
-        $db->prepare("UPDATE games SET $sets, updated_at = datetime('now') WHERE id = ?")
+        $db->prepare("UPDATE games SET $sets, updated_at = UTC_TIMESTAMP() WHERE id = ?")
             ->execute([...array_values($row), $oldId]);
 
         if ($oldId !== $game['id']) {
@@ -220,9 +220,9 @@ function field_states(string $gameId): array
 function set_field_state(string $gameId, string $field, string $source, mixed $syncedValue, ?bool $locked = null): void
 {
     db()->prepare("
-        INSERT INTO field_state (game_id, field, source, synced_value, synced_at, locked) VALUES (?, ?, ?, ?, datetime('now'), ?)
-        ON CONFLICT(game_id, field) DO UPDATE SET source = excluded.source, synced_value = excluded.synced_value,
-            synced_at = excluded.synced_at, locked = COALESCE(?, locked)
+        INSERT INTO field_state (game_id, field, source, synced_value, synced_at, locked) VALUES (?, ?, ?, ?, UTC_TIMESTAMP(), ?)
+        ON DUPLICATE KEY UPDATE source = VALUES(source), synced_value = VALUES(synced_value),
+            synced_at = VALUES(synced_at), locked = COALESCE(?, locked)
     ")->execute([$gameId, $field, $source, to_json($syncedValue), $locked === null ? 0 : (int) $locked, $locked === null ? null : (int) $locked]);
 }
 

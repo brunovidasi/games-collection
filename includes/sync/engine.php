@@ -98,8 +98,8 @@ final class SyncRun
     public static function start(string $platform, string $trigger): self
     {
         // a run that died without finishing (a timeout, a closed laptop) is marked so
-        db()->prepare("UPDATE sync_runs SET status = 'error', finished_at = datetime('now'), message = COALESCE(message, 'Stopped before it finished.')
-                       WHERE platform = ? AND status = 'running' AND started_at < datetime('now', '-30 minutes')")->execute([$platform]);
+        db()->prepare("UPDATE sync_runs SET status = 'error', finished_at = UTC_TIMESTAMP(), message = COALESCE(message, 'Stopped before it finished.')
+                       WHERE platform = ? AND status = 'running' AND started_at < UTC_TIMESTAMP() - INTERVAL 30 MINUTE")->execute([$platform]);
 
         db()->prepare('INSERT INTO sync_runs (platform, trigger_source) VALUES (?, ?)')->execute([$platform, $trigger]);
 
@@ -241,15 +241,19 @@ final class SyncRun
             $this->commitUnmatched($db);
 
             // what was answered, for the last few runs
-            $stmt = $db->prepare('INSERT OR REPLACE INTO sync_snapshots (run_id, platform, raw_gz, bytes) VALUES (?, ?, ?, ?)');
+            $stmt = $db->prepare('REPLACE INTO sync_snapshots (run_id, platform, raw_gz, bytes) VALUES (?, ?, ?, ?)');
             $stmt->bindValue(1, $this->id, PDO::PARAM_INT);
             $stmt->bindValue(2, $this->platform);
             $stmt->bindValue(3, gzencode($raw, 6), PDO::PARAM_LOB);
             $stmt->bindValue(4, strlen($raw), PDO::PARAM_INT);
             $stmt->execute();
             $keep = max(1, (int) (setting('sync', [])['keep_snapshots'] ?? 10));
-            $db->prepare('DELETE FROM sync_snapshots WHERE platform = ? AND run_id NOT IN (SELECT run_id FROM sync_snapshots WHERE platform = ? ORDER BY run_id DESC LIMIT ?)')
-                ->execute([$this->platform, $this->platform, $keep]);
+            // the oldest run to keep, then what is older (MySQL takes no LIMIT inside IN (…))
+            $stmt = $db->prepare('SELECT run_id FROM sync_snapshots WHERE platform = ? ORDER BY run_id DESC LIMIT 1 OFFSET ' . ($keep - 1));
+            $stmt->execute([$this->platform]);
+            if (($oldest = $stmt->fetchColumn()) !== false) {
+                $db->prepare('DELETE FROM sync_snapshots WHERE platform = ? AND run_id < ?')->execute([$this->platform, $oldest]);
+            }
 
             // every difference
             $insert = $db->prepare('INSERT INTO sync_changes (run_id, kind, game_id, collection, ext_id, label, field, old_json, new_json, note) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
@@ -269,7 +273,7 @@ final class SyncRun
             ];
             $message = $this->summaryMessage($summary);
             $this->log($message);
-            $db->prepare("UPDATE sync_runs SET status = 'ok', finished_at = datetime('now'), records_seen = ?, games_added = ?, games_linked = ?,
+            $db->prepare("UPDATE sync_runs SET status = 'ok', finished_at = UTC_TIMESTAMP(), records_seen = ?, games_added = ?, games_linked = ?,
                           games_changed = ?, records_changed = ?, unmatched = ?, api_calls = ?, message = ?, log = ? WHERE id = ?")
                 ->execute([...array_values($summary), $message, implode("\n", $this->logLines), $this->id]);
 
@@ -286,8 +290,8 @@ final class SyncRun
         $overrides = platform_overrides($this->platform);
         $history = $db->prepare('INSERT INTO platform_record_history (run_id, platform, collection, ext_id, data_json, missing_since) VALUES (?, ?, ?, ?, ?, ?)');
         $upsert = $db->prepare("INSERT INTO platform_records (platform, collection, ext_id, position, data_json, run_id) VALUES (?, ?, ?, ?, ?, ?)
-            ON CONFLICT(platform, collection, ext_id) DO UPDATE SET position = excluded.position, data_json = excluded.data_json,
-                synced_at = datetime('now'), run_id = excluded.run_id, missing_since = NULL");
+            ON DUPLICATE KEY UPDATE position = VALUES(position), data_json = VALUES(data_json),
+                synced_at = UTC_TIMESTAMP(), run_id = VALUES(run_id), missing_since = NULL");
 
         foreach ($data['collections'] as $collection => $records) {
             $stmt = $db->prepare('SELECT ext_id, data_json, missing_since FROM platform_records WHERE platform = ? AND collection = ?');
@@ -343,7 +347,7 @@ final class SyncRun
             foreach ($old as $extId => $row) {
                 if ($row['missing_since'] === null) {
                     $history->execute([$this->id, $this->platform, $collection, (string) $extId, $row['data_json'], null]);
-                    $db->prepare("UPDATE platform_records SET missing_since = datetime('now'), run_id = ? WHERE platform = ? AND collection = ? AND ext_id = ?")
+                    $db->prepare("UPDATE platform_records SET missing_since = UTC_TIMESTAMP(), run_id = ? WHERE platform = ? AND collection = ? AND ext_id = ?")
                         ->execute([$this->id, $this->platform, $collection, (string) $extId]);
                     $rec = json_decode($row['data_json'], true);
                     $this->change('missing', null, null, null, null, $rec['name'] ?? (string) $extId, 'No longer in the platform\'s list; kept.', $collection, (string) $extId);
@@ -358,8 +362,8 @@ final class SyncRun
     private function commitUnmatched(PDO $db): void
     {
         $upsert = $db->prepare("INSERT INTO sync_unmatched (platform, collection, ext_id, name, reason, candidates_json) VALUES (?, ?, ?, ?, ?, ?)
-            ON CONFLICT(platform, collection, ext_id) DO UPDATE SET name = excluded.name, reason = excluded.reason,
-                candidates_json = excluded.candidates_json, last_seen_at = datetime('now')");
+            ON DUPLICATE KEY UPDATE name = VALUES(name), reason = VALUES(reason),
+                candidates_json = VALUES(candidates_json), last_seen_at = UTC_TIMESTAMP()");
         foreach ($this->unmatched as $u) {
             $upsert->execute([$this->platform, $u['collection'], $u['extId'], $u['name'], $u['reason'], to_json($u['candidates'] ?: null)]);
         }
@@ -397,7 +401,7 @@ final class SyncRun
     public function fail(Throwable $e): void
     {
         $this->log('Stopped: ' . $e->getMessage());
-        db()->prepare("UPDATE sync_runs SET status = 'error', finished_at = datetime('now'), api_calls = ?, message = ?, log = ? WHERE id = ?")
+        db()->prepare("UPDATE sync_runs SET status = 'error', finished_at = UTC_TIMESTAMP(), api_calls = ?, message = ?, log = ? WHERE id = ?")
             ->execute([$this->calls(), $e->getMessage(), implode("\n", $this->logLines), $this->id]);
     }
 }
@@ -476,10 +480,10 @@ function connection_info(string $platform): array
 function set_connection_status(string $platform, string $status, ?string $message = null, ?string $account = null, bool $connected = false): void
 {
     db()->prepare("
-        INSERT INTO connections (platform, status, message, account, checked_at, connected_at) VALUES (?, ?, ?, ?, datetime('now'), ?)
-        ON CONFLICT(platform) DO UPDATE SET status = excluded.status, message = excluded.message,
-            account = COALESCE(excluded.account, account), checked_at = excluded.checked_at,
-            connected_at = COALESCE(excluded.connected_at, connected_at)
+        INSERT INTO connections (platform, status, message, account, checked_at, connected_at) VALUES (?, ?, ?, ?, UTC_TIMESTAMP(), ?)
+        ON DUPLICATE KEY UPDATE status = VALUES(status), message = VALUES(message),
+            account = COALESCE(VALUES(account), account), checked_at = VALUES(checked_at),
+            connected_at = COALESCE(VALUES(connected_at), connected_at)
     ")->execute([$platform, $status, $message, $account, $connected ? gmdate('Y-m-d H:i:s') : null]);
 }
 
@@ -579,7 +583,7 @@ function revert_sync_run(int $runId): string
             $restored++;
         }
 
-        $db->prepare("UPDATE sync_runs SET status = 'reverted', reverted_at = datetime('now') WHERE id = ?")->execute([$run['id']]);
+        $db->prepare("UPDATE sync_runs SET status = 'reverted', reverted_at = UTC_TIMESTAMP() WHERE id = ?")->execute([$run['id']]);
         touch_data();
 
         $msg = "Undone: $restored " . plural($restored, 'value') . ' put back';

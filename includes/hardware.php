@@ -116,7 +116,7 @@ function save_hardware(array $hw, bool $isNew): void
     }
 
     $set = implode(', ', array_map(fn ($c) => "$c = ?", array_keys($values)));
-    db()->prepare("UPDATE hardware SET $set, updated_at = datetime('now') WHERE id = ?")
+    db()->prepare("UPDATE hardware SET $set, updated_at = UTC_TIMESTAMP() WHERE id = ?")
         ->execute([...array_values($values), $hw['id']]);
 }
 

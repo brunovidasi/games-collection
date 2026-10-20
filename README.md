@@ -19,7 +19,7 @@ The game collection site: black, finely pinstriped pages with a blue accent and 
 
 ## How it is built
 
-The site is PHP with a SQLite database, built the same way as the record site (`music.brunovidasi.com`), and has an admin behind it at `/admin`:
+The site is PHP with a MySQL (MariaDB) database, built the same way as the record site (`music.brunovidasi.com`), and has an admin behind it at `/admin`:
 
 - **The front end** is the same page as before (`public/index.php`, `public/js/`, `public/css/`). It reads the collection from the site's own JSON API (`api/games`, `api/steam`, `api/psn`, `api/nintendo`, `api/xbox`, `api/ea`, `api/rockstar`, `api/sims_wants`, `api/gta`, `api/pokemon`, `api/mario`), which hands it exactly what the old `data/*.json` files had, so nothing on the page had to change. The site's name, each page's title, description and header, the views it offers and the "Add me" links come from Settings.
 - **The admin** (`/admin`): the dashboard, the collection, Sync History and Settings. One account, Bruno's.
@@ -33,12 +33,13 @@ The collections are the same shelf (`public/js/app.js`): each adds itself to `wi
 
 ## Local setup
 
-Needs PHP 8.1+ with `pdo_sqlite`, `curl`, `gd` and `sodium` (all in the usual builds).
+Needs PHP 8.1+ with `pdo_mysql`, `curl`, `gd` and `sodium` (all in the usual builds), and MySQL or MariaDB (`brew install mariadb@11.4`, as the server runs 11.4).
 
 ```sh
 cp config/config.example.php config/config.php
-# in config/config.php: owner_email, and an app_key:
+# in config/config.php: owner_email, an app_key, and the development database ('db'):
 php -r "echo bin2hex(random_bytes(32));"
+mysql -e 'CREATE DATABASE games_development'   # its tables are made on the first request
 php cron/import_json.php          # the collection from seed/*.json, once
 php cron/verify_import.php        # checks the API hands back exactly what the files said
 php -S localhost:8020 -t public dev-server.php
@@ -52,7 +53,7 @@ Then open <http://localhost:8020/setup> to create the one account (the email mus
 
 ## The database
 
-`sql/schema.sql`, applied on every request (`includes/db.php`). Columns added later go in `MIGRATED_COLUMNS` there.
+`sql/schema.sql`, applied by `includes/db.php` whenever the file changes (it keeps a hash of it in `settings`, `schema_hash`). Columns added to a table later go in `MIGRATED_COLUMNS` there too. Every table is `utf8mb4_bin`, so ids and names compare exactly; times are UTC. phpMyAdmin (cPanel → Databases) shows it on the server.
 
 - **`games`**: one row per copy, keyed by the id the site has always used. The fields the admin filters on are columns; the rest of what the shelf draws a copy with (spine, case colour, cartridge, box…) is in `extra_json`. Which field is where is one list, `FIELDS` in `includes/fields.php`, which the import, the edit form and the API all read.
 - **`platform_records`**: what each platform says about each of its games (play time, achievements, trophies, the Steam store page), by the platform's id, as the old `data/steam.json`… had it. `platform_accounts` has the account-wide figures (trophy level, gamerscore).
@@ -127,10 +128,10 @@ This repo deploys itself: every push to `main` runs `.github/workflows/deploy.ym
 
 ```
 /home/brunovidasi/games-instance/config.php   <- the real config, with 'env' => 'production'
-/home/brunovidasi/games-instance/data/        <- the SQLite database
+/home/brunovidasi/games-instance/data/        <- the sync log and caches
 ```
 
-The app walks up the tree looking for a directory named `games-instance`, so no server path is hardcoded; the dashboard's *About the site* shows which config and database it found. Then either upload the local database as `games-instance/data/games.production.sqlite` (with the same `app_key`), or run `/setup` and the import there. **The covers aren't in the repo** (`public/covers/` is gitignored; the database names each file): copy the folder up once. The dashboard counts any it can't find. New covers from the admin are written there on the server.
+The database is MySQL, `brunovidasi_games` (cPanel → Manage My Databases, user `brunovidasi_games`), named in the config's `production` → `db`. The app walks up the tree looking for a directory named `games-instance`, so no server path is hardcoded; the dashboard's *About the site* shows which config and database it found. A new database gets its tables on the first request; then run `/setup` and the import there, or bring a local one over with `mysqldump` (with the same `app_key`). **The covers aren't in the repo** (`public/covers/` is gitignored; the database names each file): copy the folder up once. The dashboard counts any it can't find. New covers from the admin are written there on the server.
 
 ## The fields of a copy
 

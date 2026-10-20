@@ -22,7 +22,7 @@ $psnExpires = credential('psn', 'refresh_expires');
 $psnDays = $psnExpires ? (int) floor(((int) $psnExpires - time()) / 86400) : null;
 
 // where things are
-$dbSize = is_file(db_path()) ? filesize(db_path()) : 0;
+$dbSize = (int) db()->query('SELECT SUM(data_length + index_length) FROM information_schema.tables WHERE table_schema = DATABASE()')->fetchColumn();
 $commit = null;
 $head = dirname(__DIR__) . '/.git/HEAD';
 if (is_file($head)) {
@@ -176,10 +176,10 @@ admin_header('Dashboard', 'Everything on the shelf, as the site counts it.');
     <dt>Copies in the database</dt><dd><?= count($games) ?> <span class="muted">(<?= count($hidden) ?> hidden)</span></dd>
     <dt>Covers</dt><dd><?= count($coverFiles) - count($missingFiles) ?> of <?= count($coverFiles) ?> on this server</dd>
     <dt>Views on the site</dt><dd><?= e(implode(', ', array_map(fn ($v) => VIEWS[$v], views_settings()['enabled']))) ?></dd>
-    <dt>Database</dt><dd><code><?= e(db_path()) ?></code> <span class="muted">· <?= e(format_bytes($dbSize)) ?></span></dd>
+    <dt>Database</dt><dd><code><?= e(db_config()['name']) ?></code> <span class="muted">· <?= e(format_bytes($dbSize)) ?></span></dd>
     <dt>Config</dt><dd><code><?= e(config_path()) ?></code><?= instance_dir() ? '' : ' <span class="muted">(no games-instance directory: development)</span>' ?></dd>
     <dt>Saved sign-ins</dt><dd><?= secrets_ready() ? 'Encrypted with the config\'s app_key' : '<span class="error-text">No app_key in the config: sign-ins can\'t be saved</span>' ?></dd>
-    <dt>Software</dt><dd>PHP <?= e(PHP_VERSION) ?> · SQLite <?= e(db()->query('SELECT sqlite_version()')->fetchColumn()) ?> · GD <?= function_exists('gd_info') ? e(gd_info()['GD Version']) : '<span class="error-text">missing</span>' ?><?= $commit ? ' · commit <code>' . e($commit) . '</code>' : '' ?></dd>
+    <dt>Software</dt><dd>PHP <?= e(PHP_VERSION) ?> · MySQL <?= e(db()->query('SELECT VERSION()')->fetchColumn()) ?> · GD <?= function_exists('gd_info') ? e(gd_info()['GD Version']) : '<span class="error-text">missing</span>' ?><?= $commit ? ' · commit <code>' . e($commit) . '</code>' : '' ?></dd>
     <dt>Signed in as</dt><dd><?= e(current_user()['email']) ?></dd>
   </dl>
 </section>

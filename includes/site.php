@@ -368,7 +368,7 @@ function seed_pokemon(): void
                 'colors' => $g['colors'] ?? null,
             ]);
         }
-        $db->exec("INSERT INTO settings (key, value) VALUES ('seeded_pokemon', 'true') ON CONFLICT(key) DO NOTHING");
+        $db->exec("INSERT IGNORE INTO settings (`key`, value) VALUES ('seeded_pokemon', 'true')");
     });
     touch_data();
 }
@@ -396,7 +396,7 @@ function seed_mario(): void
     if (($g = find_game('gbc-super-mario-land-2-6-golden-coins')) && empty($g['madeFor'])) {
         update_game(['madeFor' => 'gb'] + $g);
     }
-    db()->exec("INSERT INTO settings (key, value) VALUES ('seeded_mario', 'true') ON CONFLICT(key) DO NOTHING");
+    db()->exec("INSERT IGNORE INTO settings (`key`, value) VALUES ('seeded_mario', 'true')");
     touch_data();
 }
 

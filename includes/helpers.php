@@ -194,7 +194,7 @@ function format_bytes(int $bytes): string
 /* ---------- Dates ---------- */
 
 /**
- * SQLite's datetime('now') is UTC with no zone, so those are read as UTC;
+ * The database's timestamps (UTC_TIMESTAMP()) are UTC with no zone, so those are read as UTC;
  * anything carrying its own offset is left alone.
  */
 function to_timestamp(?string $value): ?int
