@@ -102,7 +102,7 @@ function status_pill(string $status): string
 }
 
 /** A copy's cover, small, for the lists. */
-function cover_thumb(array $game, string $class = 'thumb'): string
+function admin_cover_thumb(array $game, string $class = 'thumb'): string
 {
     $file = $game['cover']['file'] ?? null;
     if ($file && is_file(public_dir() . '/' . $file)) {

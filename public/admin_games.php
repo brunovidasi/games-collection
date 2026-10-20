@@ -173,7 +173,7 @@ arsort($paid);
       <?php foreach ($games as $g): $links = game_platform_links($g); $st = $stats[$g['id']]; ?>
         <tr data-id="<?= e($g['id']) ?>"<?= !empty($g['hidden']) ? ' class="is-hidden"' : '' ?>>
           <td class="c-pick"><input type="checkbox" name="ids[]" value="<?= e($g['id']) ?>" aria-label="Tick <?= e($g['title']) ?>"></td>
-          <td class="c-thumb"><a href="<?= e(url('admin/game?id=' . rawurlencode($g['id']))) ?>" tabindex="-1"><?= cover_thumb($g) ?></a></td>
+          <td class="c-thumb"><a href="<?= e(url('admin/game?id=' . rawurlencode($g['id']))) ?>" tabindex="-1"><?= admin_cover_thumb($g) ?></a></td>
           <td class="c-title" data-sort="<?= e($sortTitle($g)) ?>">
             <a href="<?= e(url('admin/game?id=' . rawurlencode($g['id']))) ?>"><?= e($g['title']) ?></a>
             <?= quick_marks($g) ?>
