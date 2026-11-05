@@ -9,7 +9,7 @@
   const byRelease = (a, b) => (a.shelfDate || a.released || '9999').localeCompare(b.shelfDate || b.released || '9999') || a.title.localeCompare(b.title);
 
   /** A copy's case where it isn't its console's usual one: EA's thick PC case of the early 2000s (bigCase), a big box. */
-  const caseName = g => g.bigCase ? 'Big case' : g.big ? 'Big box' : '';
+  const caseName = g => g.bigCase ? 'Big case' : g.jewelCase ? 'Jewel case' : g.big ? 'Big box' : '';
   /** The same, naming a PC disc's usual DVD-sized case too: what tells a big-case copy from its namesake in a normal one. */
   const caseKind = g => caseName(g) || (g.console === 'pc' && g.format === 'boxed' && !g.box ? 'DVD case' : '');
 
