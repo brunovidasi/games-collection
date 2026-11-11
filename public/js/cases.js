@@ -1214,6 +1214,11 @@
       return `<div class="bundleslip" style="font-size:${px(4.2 * s)}"><b>Download code</b><i class="bs-code"></i>
         <ul>${g.packs.map((p, i) => `<li>${icons[i] ? `<img src="${esc(icons[i])}" alt="" draggable="false">` : ''}<span>${esc(name(p))}<small>${esc(p.pack || '')}</small></span></li>`).join('')}</ul></div>`;
     }
+    // a disc console's case sold with a download code (GTA VI on the PS5): no disc in the tray, the code's slip in its place
+    if (!CART[type] && g.format === 'code-in-box') {
+      return `<div class="bundleslip" style="font-size:${px(4.2 * s)}"><b>Download code</b><i class="bs-code"></i>
+        <ul><li><span>${esc(g.title)}<small>No disc included</small></span></li></ul></div>`;
+    }
     if (!CART[type]) return discHTML(g, s, type);
     // in a plastic case the card sits in the moulded holder low down inside (css/cases.css);
     // out of a cardboard box it stands on its own
